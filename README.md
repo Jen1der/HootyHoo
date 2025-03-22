@@ -9,7 +9,7 @@ AI chatbot trained on team-specific data to provide real-time responses.
 
 WebXR integration for an interactive AR mascot.
 
-Hosted chatbot throught official Hoots website backend for seamless deployment.
+Hosted chatbot through the official Hoots website backend for seamless deployment.
 
 Technologies Used
 
@@ -19,9 +19,9 @@ WebXR: AR framework for browser-based experiences.
 
 A-Frame: WebVR and WebAR integration.
 
-Adobe: AR avatar creation.
+Meshy: Avatar Creation.
 
-Maximo: AR avatar animation.
+Maximo: AR avatar animation and rig.
 
 JavaScript & HTML: Frontend development.
 
@@ -31,26 +31,6 @@ Render: Hosting chatbot backend.
 
 Installation & Setup
 
-Clone the Repository
-
-git clone https://github.com/yourusername/ai-ar-chatbot.git
-cd ai-ar-chatbot
-
-Backend (Chatbot API)
-
-Sign up for BotPress Cloud and create a new chatbot.
-
-Copy your BotPress API URL and replace it in script.js.
-
-Deploy the chatbot backend to Render or another hosting service.
-
-Frontend (WebXR AR Experience)
-
-Ensure hooty.glb (3D model of the mascot) is hosted in the /assets folder.
-
-Update index.html to load the correct gltf-model.
-
-Deploy using GitHub Pages or Netlify.
 
 Usage
 
