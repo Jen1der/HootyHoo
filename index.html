@@ -20,7 +20,14 @@
 <!-- Put this on your page BEFORE the script below -->
 <div id="webchat" style="width: 500px; height: 500px;"></div>
 
-<!-- In your <body> tag -->
+<body>
+  <!-- Chatbot Container -->
+<div id="webchat" style="width: 500px; height: 500px;"></div>
+
+<!-- Load JavaScript -->
+<script src="js/chatbot.js"></script>
+
+
 <script>
   window.botpress.on("webchat:ready", () => {
     window.botpress.open();
@@ -55,11 +62,5 @@
   "selector": "#webchat"
 });
 </script>
-<body>
-  <!-- Chatbot Container -->
-<div id="webchat" style="width: 500px; height: 500px;"></div>
+  </body>
 
-<!-- Load JavaScript -->
-<script src="js/chatbot.js"></script>
-
-</body>
