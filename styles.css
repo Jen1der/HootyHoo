@@ -8,6 +8,10 @@ body {
     padding: 0;
 }
 
+#webchat {
+    border: 2px solid red;
+}
+
 /* Chatbot Container */
 #webchat {
     width: 500px;
