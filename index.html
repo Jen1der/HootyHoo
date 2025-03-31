@@ -1,7 +1,6 @@
-<script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
-<link rel="stylesheet" href="styles.css"> <!-- If you use a separate CSS file -->
 
 <!-- In your <head> tag -->
+<head>
 <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
 <style>
   #webchat .bpWebchat {
@@ -16,19 +15,12 @@
     display: none;
   }
 </style>
-
+</head>
+<body>
 <!-- Put this on your page BEFORE the script below -->
 <div id="webchat" style="width: 500px; height: 500px;"></div>
-
-<body>
-  <!-- Chatbot Container -->
-<div id="webchat" style="width: 500px; height: 500px;"></div>
-
-<!-- Load JavaScript -->
-<script src="java.js"></script>
-
-
-<script>
+  <script src="script.js"></script>
+  <script> 
   window.botpress.on("webchat:ready", () => {
     window.botpress.open();
   });
