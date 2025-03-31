@@ -120,3 +120,8 @@ function tryDecode(str) {
     }
   }
 }
+
+window.botpress.on("*", (event) => {
+    console.log("Botpress Event:", event);
+});
+
