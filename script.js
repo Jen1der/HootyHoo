@@ -85,6 +85,23 @@ window.botpress.on("*", (event) => {
   }
 });
 
+window.botpress.on("webchat:ready", () => {
+    console.log("Botpress Webchat is ready!");
+    window.botpress.open();  // Open chat on load
+});
+
+window.botpress.init({
+    botId: "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
+    clientId: "44c58e23-012d-4aa6-9617-abb818a66b42",
+    selector: "#webchat",
+    configuration: {
+        composerPlaceholder: "Let's go, Hoots!",
+        botName: "iHooty",
+        color: "#ffc53d",
+        themeMode: "light",
+    }
+});
+
 function pickRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
