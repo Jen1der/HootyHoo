@@ -99,8 +99,11 @@ window.botpress.init({
         botName: "iHooty",
         color: "#ffc53d",
         themeMode: "light",
+        enableCookie: false,  // ❌ Disable third-party cookies
+        externalAuthEnabled: false, // ❌ Prevents cross-domain auth issues
     }
 });
+
 
 function pickRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
