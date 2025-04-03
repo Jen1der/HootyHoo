@@ -141,3 +141,28 @@ function tryDecode(str) {
   }
 }
 
+// Wait for the Botpress script to load before initializing
+setTimeout(() => {
+    if (window.botpress) {
+        window.botpress.on("webchat:ready", () => {
+            window.botpress.open();
+        });
+
+        window.botpress.init({
+            botId: "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
+            clientId: "44c58e23-012d-4aa6-9617-abb818a66b42",
+            selector: "#webchat",
+            configuration: {
+                composerPlaceholder: "Let's go, Hoots!",
+                botName: "iHooty",
+                color: "#ffc53d",
+                themeMode: "light",
+                enableCookie: false,  // Disable third-party cookies
+                externalAuthEnabled: false
+            }
+        });
+    } else {
+        console.error("Botpress failed to load.");
+    }
+}, 3000); // Delay 3 seconds to ensure script loads
+
