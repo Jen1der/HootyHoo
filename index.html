@@ -1,108 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>HootyHoo Chatbot</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HootyHoo AR Experience</title>
   
-  <!-- Add this for debugging -->
-  <style>
-    /* General Page Styling */
-    body {
-        font-family: 'Bebas Neue', sans-serif;
-        background-color: #5D6770; 
-        color: #FFFFFF;
-        text-align: center;
-        margin: 0;
-        padding: 0;
-    }
-
-    /* Make sure the container is visible with a border */
-    #webchat {
-        width: 400px;
-        height: 600px;
-        margin: 20px auto;
-        border: 3px solid red; /* Visible border for debugging */
-        background-color: white;
-        border-radius: 10px;
-    }
-
-    /* Webchat styling */
-    #webchat .bpWebchat {
-        position: unset !important;
-        width: 100% !important;
-        height: 100% !important;
-        max-height: 100% !important;
-        max-width: 100% !important;
-    }
-
-    /* Hide Floating Chat Button */
-    #webchat .bpFab {
-        display: none !important;
-    }
-
-    /* Header Styling */
-    h1 {
-        font-size: 2rem;
-        color: #FFD100; 
-        margin-top: 20px;
-    }
-  </style>
+  <!-- A-Frame for WebXR -->
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <!-- AR.js for marker-based AR -->
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  <!-- Animation mixer for GLTF models -->
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
   
   <!-- Load the Botpress webchat script -->
   <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
-</head>
-<body>
-  <h1>WELCOME TO HOOTYHOO!</h1>
   
-  <!-- Status indicator for debugging -->
-  <div id="status" style="color: yellow; margin-bottom: 10px;">
-    Loading chatbot...
+  <style>
+    /* Minimize UI for AR experience */
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Bebas Neue', sans-serif;
+    }
+    
+    /* Chat interface that overlays the AR scene */
+    #chat-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      height: 400px;
+      z-index: 1000;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Toggle button to show/hide chat */
+    #chat-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 330px;
+      z-index: 1001;
+      background-color: #ffc53d;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    .instructions {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      max-width: 300px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="instructions">
+    Point your camera at a flat surface and tap to place Hooty.
+    Say "dance" to make Hooty dance!
   </div>
   
-  <!-- Chatbot container -->
-  <div id="webchat"></div>
+  <!-- Chat toggle button -->
+  <button id="chat-toggle">Chat</button>
+  
+  <!-- Chat container -->
+  <div id="chat-container">
+    <div id="webchat" style="height: 100%;"></div>
+  </div>
+  
+  <!-- A-Frame Scene -->
+  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
+    <!-- Assets preloading -->
+    <a-assets>
+      <!-- Add your Hooty 3D model here -->
+      <a-asset-item id="hooty-model" src="https://yourwebsite.com/assets/hooty.glb"></a-asset-item>
+    </a-assets>
+    
+    <!-- AR Content -->
+    <a-entity id="ar-content" visible="false">
+      <!-- Hooty 3D model with animation mixer -->
+      <a-entity
+        id="hooty"
+        gltf-model="#hooty-model"
+        position="0 0 -1"
+        scale="0.5 0.5 0.5"
+        animation-mixer="clip: idle"
+        rotation="0 0 0">
+      </a-entity>
+    </a-entity>
+    
+    <!-- Camera -->
+    <a-entity camera look-controls position="0 1.6 0"></a-entity>
+  </a-scene>
   
   <script>
-    // Debug logging
-    console.log("Page loaded, attempting to initialize Botpress");
-    
-    // Function to update status
-    function updateStatus(message) {
-      document.getElementById('status').innerText = message;
-    }
-    
-    // Check if script loaded
-    if (typeof window.botpress === 'undefined') {
-      console.error("Botpress script not loaded!");
-      updateStatus("ERROR: Botpress script failed to load");
-    } else {
-      console.log("Botpress script loaded successfully");
-    }
-    
-    // Wait for the DOM to be fully loaded
-    document.addEventListener("DOMContentLoaded", function() {
-      updateStatus("DOM loaded, initializing chatbot...");
+    // WebXR AR Setup
+    window.addEventListener('DOMContentLoaded', function() {
+      const scene = document.querySelector('a-scene');
+      const arContent = document.querySelector('#ar-content');
+      const hootModel = document.querySelector('#hooty');
+      const chatToggle = document.querySelector('#chat-toggle');
+      const chatContainer = document.querySelector('#chat-container');
       
-      // Set up event listener for webchat ready
-      if (window.botpress) {
-        window.botpress.on("webchat:ready", () => {
-          console.log("Webchat is ready!");
-          updateStatus("Chatbot ready!");
-          window.botpress.open();
+      // Hide chat initially
+      chatContainer.style.display = 'none';
+      
+      // Toggle chat visibility
+      chatToggle.addEventListener('click', function() {
+        if (chatContainer.style.display === 'none') {
+          chatContainer.style.display = 'block';
+        } else {
+          chatContainer.style.display = 'none';
+        }
+      });
+      
+      // Handle AR session start
+      scene.addEventListener('enter-vr', function() {
+        // Make content visible when AR starts
+        arContent.setAttribute('visible', true);
+      });
+      
+      // Tap to place model
+      scene.addEventListener('click', function() {
+        const cameraPosition = document.querySelector('[camera]').getAttribute('position');
+        hootModel.setAttribute('position', {
+          x: 0,
+          y: -0.5, // Place slightly below camera level
+          z: -1.5  // Place in front of camera
         });
-        
-        // Initialize the webchat
-        try {
+      });
+      
+      // Initialize Botpress
+      function initBotpress() {
+        if (window.botpress) {
+          window.botpress.on("webchat:ready", () => {
+            console.log("Webchat is ready!");
+          });
+          
+          // Listen for messages to trigger animations
+          window.botpress.on("webchat:message:received", (event) => {
+            console.log("Message received:", event);
+            
+            // Check if message contains animation triggers
+            const message = event.message?.text?.toLowerCase() || "";
+            if (message.includes('dance')) {
+              hootModel.setAttribute('animation-mixer', {clip: 'dance', loop: 'repeat', repetitions: 2});
+              
+              // Return to idle after dancing
+              setTimeout(() => {
+                hootModel.setAttribute('animation-mixer', {clip: 'idle'});
+              }, 5000);
+            }
+          });
+          
+          // Initialize the webchat
           window.botpress.init({
             "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
             "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
             "hostUrl": "https://cdn.botpress.cloud/webchat/v2",
             "messagingUrl": "https://messaging.botpress.cloud",
             "webhookId": "44c58e23-012d-4aa6-9617-abb818a66b42",
-            "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
             "configuration": {
-              "composerPlaceholder": "Let's go, Hoots!",
+              "composerPlaceholder": "Talk to Hooty...",
               "botName": "iHooty",
               "color": "#ffc53d",
               "variant": "solid",
@@ -112,15 +184,14 @@
             },
             "selector": "#webchat"
           });
-          console.log("Botpress init called successfully");
-        } catch (error) {
-          console.error("Error initializing Botpress:", error);
-          updateStatus("ERROR: Failed to initialize chatbot");
+        } else {
+          console.error("Botpress not loaded!");
+          setTimeout(initBotpress, 1000); // Retry after 1 second
         }
-      } else {
-        console.error("Botpress object not available");
-        updateStatus("ERROR: Botpress not available");
       }
+      
+      // Delay initialization to ensure all scripts are loaded
+      setTimeout(initBotpress, 2000);
     });
   </script>
 </body>
