@@ -4,56 +4,123 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HootyHoo Chatbot</title>
-  <!-- Link to your CSS file -->
-  <link rel="stylesheet" href="styles.css">
-  <!-- Botpress Chatbot Script -->
+  
+  <!-- Add this for debugging -->
+  <style>
+    /* General Page Styling */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #5D6770; 
+        color: #FFFFFF;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Make sure the container is visible with a border */
+    #webchat {
+        width: 400px;
+        height: 600px;
+        margin: 20px auto;
+        border: 3px solid red; /* Visible border for debugging */
+        background-color: white;
+        border-radius: 10px;
+    }
+
+    /* Webchat styling */
+    #webchat .bpWebchat {
+        position: unset !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Hide Floating Chat Button */
+    #webchat .bpFab {
+        display: none !important;
+    }
+
+    /* Header Styling */
+    h1 {
+        font-size: 2rem;
+        color: #FFD100; 
+        margin-top: 20px;
+    }
+  </style>
+  
+  <!-- Load the Botpress webchat script -->
   <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
 </head>
 <body>
-  <h1>Welcome to HootyHoo!</h1>
+  <h1>WELCOME TO HOOTYHOO!</h1>
   
-  <!-- Chatbot container - this is essential -->
+  <!-- Status indicator for debugging -->
+  <div id="status" style="color: yellow; margin-bottom: 10px;">
+    Loading chatbot...
+  </div>
+  
+  <!-- Chatbot container -->
   <div id="webchat"></div>
   
   <script>
-    // Wait for the page to fully load
-    window.addEventListener("load", function() {
-      // Initialize Botpress when it's ready
-      window.botpress.on("webchat:ready", () => {
-        console.log("Botpress Webchat is ready!");
-        window.botpress.open();  // Open chat on load
-      });
+    // Debug logging
+    console.log("Page loaded, attempting to initialize Botpress");
+    
+    // Function to update status
+    function updateStatus(message) {
+      document.getElementById('status').innerText = message;
+    }
+    
+    // Check if script loaded
+    if (typeof window.botpress === 'undefined') {
+      console.error("Botpress script not loaded!");
+      updateStatus("ERROR: Botpress script failed to load");
+    } else {
+      console.log("Botpress script loaded successfully");
+    }
+    
+    // Wait for the DOM to be fully loaded
+    document.addEventListener("DOMContentLoaded", function() {
+      updateStatus("DOM loaded, initializing chatbot...");
       
-      // Initialize with the configuration provided by Botpress
-      window.botpress.init({
-        "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
-        "configuration": {
-          "composerPlaceholder": "Let's go, Hoots!",
-          "botName": "iHooty",
-          "botAvatar": "",
-          "website": {
-            "title": "https://ofallonhoots.com/",
-            "link": "https://ofallonhoots.com/"
-          },
-          "email": {
-            "title": "Ofallonhoots@prospectleague.com",
-            "link": "Ofallonhoots@prospectleague.com"
-          },
-          "phone": {
-            "title": "6367414668",
-            "link": "6367414668"
-          },
-          "color": "#ffc53d",
-          "variant": "solid",
-          "themeMode": "light",
-          "fontFamily": "ibm",
-          "radius": 1,
-          "enableCookie": false,  // Disable third-party cookies
-          "externalAuthEnabled": false // Prevents cross-domain auth issues
-        },
-        "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
-        "selector": "#webchat"
-      });
+      // Set up event listener for webchat ready
+      if (window.botpress) {
+        window.botpress.on("webchat:ready", () => {
+          console.log("Webchat is ready!");
+          updateStatus("Chatbot ready!");
+          window.botpress.open();
+        });
+        
+        // Initialize the webchat
+        try {
+          window.botpress.init({
+            "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
+            "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
+            "hostUrl": "https://cdn.botpress.cloud/webchat/v2",
+            "messagingUrl": "https://messaging.botpress.cloud",
+            "webhookId": "44c58e23-012d-4aa6-9617-abb818a66b42",
+            "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
+            "configuration": {
+              "composerPlaceholder": "Let's go, Hoots!",
+              "botName": "iHooty",
+              "color": "#ffc53d",
+              "variant": "solid",
+              "themeMode": "light",
+              "enableCookie": false,
+              "externalAuthEnabled": false
+            },
+            "selector": "#webchat"
+          });
+          console.log("Botpress init called successfully");
+        } catch (error) {
+          console.error("Error initializing Botpress:", error);
+          updateStatus("ERROR: Failed to initialize chatbot");
+        }
+      } else {
+        console.error("Botpress object not available");
+        updateStatus("ERROR: Botpress not available");
+      }
     });
   </script>
 </body>
