@@ -166,3 +166,14 @@ setTimeout(() => {
     }
 }, 3000); // Delay 3 seconds to ensure script loads
 
+window.botpress.init({
+  "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
+  "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
+  "configuration": {
+    // Other settings...
+    "enableCookie": true,  // Change this to true
+    "externalAuthEnabled": false
+  },
+  "selector": "#webchat"
+});
+
