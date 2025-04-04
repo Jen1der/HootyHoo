@@ -176,4 +176,115 @@ window.botpress.init({
   },
   "selector": "#webchat"
 });
+// Animation controller for Hooty
+class HootyController {
+  constructor(modelEntity) {
+    this.modelEntity = modelEntity;
+    this.currentAnimation = 'idle';
+    this.animationQueue = [];
+    this.isAnimating = false;
+    
+    // Define animation clips and their durations (in ms)
+    this.animations = {
+      'idle': { duration: 0, loop: true },      // Default state, continuous loop
+      'dance': { duration: 5000, loop: false }, // Dance for 5 seconds
+      'wave': { duration: 2000, loop: false },  // Wave for 2 seconds
+      'jump': { duration: 1500, loop: false },  // Jump for 1.5 seconds
+      'cheer': { duration: 3000, loop: false }, // Cheer for 3 seconds
+      'pitch': { duration: 2500, loop: false }  // Pitching motion for 2.5 seconds
+    };
+    
+    // Keywords that trigger animations
+    this.animationTriggers = {
+      'dance': ['dance', 'dancing', 'move'],
+      'wave': ['wave', 'hello', 'hi', 'hey'],
+      'jump': ['jump', 'hop', 'excited'],
+      'cheer': ['cheer', 'celebrate', 'hooray', 'yay', 'win'],
+      'pitch': ['pitch', 'throw', 'baseball']
+    };
+  }
+  
+  // Check message for animation triggers
+  checkForAnimationTriggers(message) {
+    const lowercaseMsg = message.toLowerCase();
+    
+    for (const [animation, triggers] of Object.entries(this.animationTriggers)) {
+      if (triggers.some(trigger => lowercaseMsg.includes(trigger))) {
+        this.playAnimation(animation);
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  // Play an animation
+  playAnimation(animationName) {
+    if (!this.animations[animationName]) {
+      console.warn(`Animation "${animationName}" not found!`);
+      return;
+    }
+    
+    // Add to queue if already animating
+    if (this.isAnimating && !this.animations[animationName].loop) {
+      this.animationQueue.push(animationName);
+      return;
+    }
+    
+    // Play the animation
+    this.currentAnimation = animationName;
+    this.modelEntity.setAttribute('animation-mixer', {
+      clip: animationName,
+      loop: this.animations[animationName].loop ? 'repeat' : 'once'
+    });
+    
+    // Handle non-looping animations
+    if (!this.animations[animationName].loop) {
+      this.isAnimating = true;
+      
+      // Return to idle after animation completes
+      setTimeout(() => {
+        this.isAnimating = false;
+        
+        // Play next animation in queue if exists
+        if (this.animationQueue.length > 0) {
+          const nextAnimation = this.animationQueue.shift();
+          this.playAnimation(nextAnimation);
+        } else {
+          // Return to idle
+          this.currentAnimation = 'idle';
+          this.modelEntity.setAttribute('animation-mixer', {
+            clip: 'idle',
+            loop: 'repeat'
+          });
+        }
+      }, this.animations[animationName].duration);
+    }
+  }
+  
+  // React to user message
+  reactToMessage(message) {
+    return this.checkForAnimationTriggers(message);
+  }
+  
+  // React to bot response
+  reactToBotResponse(response) {
+    // Bot responses can also trigger animations
+    return this.checkForAnimationTriggers(response);
+  }
+}
+
+// Usage in your main script:
+const hootModel = document.querySelector('#hooty');
+const hootyController = new HootyController(hootModel);
+
+// Connect to Botpress messages
+window.botpress.on("webchat:message:sent", (event) => {
+  const userMessage = event.message?.text || "";
+  hootyController.reactToMessage(userMessage);
+});
+
+window.botpress.on("webchat:message:received", (event) => {
+  const botResponse = event.message?.text || "";
+  hootyController.reactToBotResponse(botResponse);
+});
 
