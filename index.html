@@ -4,23 +4,56 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HootyHoo Chatbot</title>
+  <!-- Link to your CSS file -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Botpress Chatbot Script -->
+  <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
 </head>
 <body>
   <h1>Welcome to HootyHoo!</h1>
-
-  <!-- Botpress Chatbot Script -->
-  <script src="https://cdn.botpress.cloud/webchat/v2/inject.js"></script>
-
+  
+  <!-- Chatbot container - this is essential -->
+  <div id="webchat"></div>
+  
   <script>
-    window.addEventListener("load", function () {
-      // Wait until the botpress script is fully loaded
-      if (window.botpressWebChat) {
-        window.botpressWebChat.init({
-          configUrl: "https://files.bpcontent.cloud/2025/02/21/18/20250221184729-IVWPX507.json"
-        });
-      } else {
-        console.error("Botpress not loaded");
-      }
+    // Wait for the page to fully load
+    window.addEventListener("load", function() {
+      // Initialize Botpress when it's ready
+      window.botpress.on("webchat:ready", () => {
+        console.log("Botpress Webchat is ready!");
+        window.botpress.open();  // Open chat on load
+      });
+      
+      // Initialize with the configuration provided by Botpress
+      window.botpress.init({
+        "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
+        "configuration": {
+          "composerPlaceholder": "Let's go, Hoots!",
+          "botName": "iHooty",
+          "botAvatar": "",
+          "website": {
+            "title": "https://ofallonhoots.com/",
+            "link": "https://ofallonhoots.com/"
+          },
+          "email": {
+            "title": "Ofallonhoots@prospectleague.com",
+            "link": "Ofallonhoots@prospectleague.com"
+          },
+          "phone": {
+            "title": "6367414668",
+            "link": "6367414668"
+          },
+          "color": "#ffc53d",
+          "variant": "solid",
+          "themeMode": "light",
+          "fontFamily": "ibm",
+          "radius": 1,
+          "enableCookie": false,  // Disable third-party cookies
+          "externalAuthEnabled": false // Prevents cross-domain auth issues
+        },
+        "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
+        "selector": "#webchat"
+      });
     });
   </script>
 </body>
