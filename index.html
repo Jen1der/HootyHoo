@@ -31,7 +31,17 @@
     <!-- Chatbot Container -->
     <div id="webchat" style="width: 500px; height: 500px;"></div>
 
- <script>
+<script>
+  // Function to load Botpress script dynamically
+  function loadBotpressScript(callback) {
+    var script = document.createElement("script");
+    script.src = "https://cdn.botpress.cloud/webchat/v2.3/inject.js";
+    script.async = true;
+    script.onload = callback; // Only initialize AFTER the script loads
+    document.head.appendChild(script);
+  }
+
+  // Initialize chatbot ONLY after script is fully loaded
   function initializeChatbot() {
     if (window.botpressWebChat) {
       window.botpressWebChat.init({
@@ -45,17 +55,16 @@
         useSessionStorage: true,
         selector: "#webchat"
       });
+      console.log("Botpress Chatbot Initialized! ✅");
     } else {
-      console.error("Botpress script not loaded yet. Retrying...");
-      setTimeout(initializeChatbot, 500); // Try again after 500ms
+      console.error("Botpress script still not available.");
     }
   }
 
-  // Run the function after the page loads
-  window.onload = function () {
-    initializeChatbot();
-  };
+  // Load script and then initialize the chatbot
+  loadBotpressScript(initializeChatbot);
 </script>
+
 
       <!-- Load External JavaScript -->
     <script src="script.js"></script>
