@@ -8,13 +8,19 @@
 <body>
   <h1>Welcome to HootyHoo!</h1>
 
-  <!-- Botpress Chat Script -->
+  <!-- Botpress Chatbot Script -->
   <script src="https://cdn.botpress.cloud/webchat/v2/inject.js"></script>
+
   <script>
     window.addEventListener("load", function () {
-      window.botpressWebChat.init({
-        configUrl: "https://files.bpcontent.cloud/2025/02/21/18/20250221184729-IVWPX507.json"
-      });
+      // Wait until the botpress script is fully loaded
+      if (window.botpressWebChat) {
+        window.botpressWebChat.init({
+          configUrl: "https://files.bpcontent.cloud/2025/02/21/18/20250221184729-IVWPX507.json"
+        });
+      } else {
+        console.error("Botpress not loaded");
+      }
     });
   </script>
 </body>
