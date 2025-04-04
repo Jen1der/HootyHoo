@@ -1,54 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HootyHoo Chatbot</title>
-
-    <!-- Link to CSS file -->
-    <link rel="stylesheet" href="styles.css">
-
-    <!-- Botpress Chatbot Script -->
-    <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HootyHoo Chatbot</title>
 </head>
 <body>
-    <h1>Welcome to HootyHoo Chatbot</h1>
+  <h1>Welcome to HootyHoo Chatbot</h1>
 
-    <!-- Chatbot Container -->
-    <div id="webchat" style="width: 400px; height: 600px;"></div>
+  <!-- Load the Botpress script -->
+  <script>
+    function loadBotpress() {
+      const script = document.createElement('script');
+      script.src = "https://cdn.botpress.cloud/webchat/v2/inject.js";
+      script.async = true;
 
-   <script>
-  function loadBotpressScript() {
-    let script = document.createElement("script");
-    script.src = "https://cdn.botpress.cloud/webchat/v2.3/inject.js";
-    script.async = true;
-    script.onload = initializeChatbot; // Run chatbot init AFTER script loads
-    document.head.appendChild(script);
-  }
+      script.onload = () => {
+        console.log("Botpress script loaded.");
+        window.botpressWebChat.init({
+          botId: "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",  // Replace with your actual bot ID if different
+          clientId: "44c58e23-012d-4aa6-9617-abb818a66b42",
+          host: "https://cdn.botpress.cloud",
+          botName: "iHooty",
+          useSessionStorage: true,
+          composerPlaceholder: "Say hoot!",
+        });
+      };
 
-  function initializeChatbot() {
-    if (window.botpressWebChat) {
-      window.botpressWebChat.init({
-        botId: "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
-        clientId: "44c58e23-012d-4aa6-9617-abb818a66b42",
-        host: "https://cdn.botpress.cloud",
-        selector: "#webchat",
-        composerPlaceholder: "Let's go, Hoots!",
-        botName: "iHooty",
-        themeName: "prism",
-        stylesheet: "styles.css",
-        useSessionStorage: true
-      });
-    } else {
-      console.error("Botpress script not loaded. Retrying...");
-      setTimeout(initializeChatbot, 2000); // Retry if not ready
+      script.onerror = () => {
+        console.error("Failed to load Botpress script.");
+      };
+
+      document.head.appendChild(script);
     }
-  }
 
-  // Load Botpress script when the page loads
-  window.onload = loadBotpressScript;
-</script>
-
+    window.addEventListener('load', loadBotpress);
+  </script>
 </body>
 </html>
+
