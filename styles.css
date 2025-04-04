@@ -8,10 +8,6 @@ body {
     padding: 0;
 }
 
-#webchat {
-    border: 2px solid black;
-}
-
 /* Chatbot Container */
 #webchat {
     width: 400px;
@@ -21,6 +17,7 @@ body {
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     background: white;
+}  /* This closing bracket was missing */
 
 /* Customize Chatbot Appearance */
 #webchat .bpWebchat {
@@ -49,4 +46,3 @@ footer {
     font-size: 0.9rem;
     color: #666;
 }
-
