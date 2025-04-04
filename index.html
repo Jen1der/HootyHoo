@@ -6,36 +6,16 @@
   <title>HootyHoo Chatbot</title>
 </head>
 <body>
-  <h1>Welcome to HootyHoo Chatbot</h1>
+  <h1>Welcome to HootyHoo!</h1>
 
-  <!-- Load the Botpress script -->
+  <!-- Botpress Chat Script -->
+  <script src="https://cdn.botpress.cloud/webchat/v2/inject.js"></script>
   <script>
-    function loadBotpress() {
-      const script = document.createElement('script');
-      script.src = "https://cdn.botpress.cloud/webchat/v2/inject.js";
-      script.async = true;
-
-      script.onload = () => {
-        console.log("Botpress script loaded.");
-        window.botpressWebChat.init({
-          botId: "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",  // Replace with your actual bot ID if different
-          clientId: "44c58e23-012d-4aa6-9617-abb818a66b42",
-          host: "https://cdn.botpress.cloud",
-          botName: "iHooty",
-          useSessionStorage: true,
-          composerPlaceholder: "Say hoot!",
-        });
-      };
-
-      script.onerror = () => {
-        console.error("Failed to load Botpress script.");
-      };
-
-      document.head.appendChild(script);
-    }
-
-    window.addEventListener('load', loadBotpress);
+    window.addEventListener("load", function () {
+      window.botpressWebChat.init({
+        configUrl: "https://files.bpcontent.cloud/2025/02/21/18/20250221184729-IVWPX507.json"
+      });
+    });
   </script>
 </body>
 </html>
-
