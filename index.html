@@ -30,8 +30,9 @@
     <!-- Chatbot Container -->
     <div id="webchat" style="width: 500px; height: 500px;"></div>
 
-    <!-- Botpress Initialization Script -->
-    <script>
+ <script>
+  function initializeChatbot() {
+    if (window.botpressWebChat) {
       window.botpressWebChat.init({
         botId: "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
         clientId: "44c58e23-012d-4aa6-9617-abb818a66b42",
@@ -41,12 +42,19 @@
         themeName: "prism",
         stylesheet: "https://webchat-styling.css",
         useSessionStorage: true,
-        selector: "#webchat"  // Ensure this matches your chatbot container
+        selector: "#webchat"
       });
-    </script>
-</body>
-</html>
+    } else {
+      console.error("Botpress script not loaded yet. Retrying...");
+      setTimeout(initializeChatbot, 500); // Try again after 500ms
+    }
+  }
 
+  // Run the function after the page loads
+  window.onload = function () {
+    initializeChatbot();
+  };
+</script>
 
       <!-- Load External JavaScript -->
     <script src="script.js"></script>
