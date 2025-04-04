@@ -1,28 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HootyHoo Chatbot</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HootyHoo Chatbot</title>
 
-  <!-- Optional Styling -->
-  <stlye>
+    <!-- Link to CSS file -->
     <link rel="stylesheet" href="styles.css">
-  </style>
+
+    <!-- Botpress Chatbot Script -->
+    <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
 </head>
 <body>
-  <h1>Welcome to HootyHoo Chatbot</h1>
+    <h1>Welcome to HootyHoo Chatbot</h1>
 
-  <!-- Chatbot Container -->
-  <div id="webchat"></div>
+    <!-- Chatbot Container -->
+    <div id="webchat" style="width: 400px; height: 600px;"></div>
 
-  <!-- Botpress Chatbot Script (Placing it here for better page load) -->
-  <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
-  <script>
-    window.botpressWebChat.init({
-      "configUrl": "https://files.bpcontent.cloud/2025/02/21/18/20250221184729-IVWPX507.json",
-      "selector": "#webchat"
-    });
-  </script>
+    <!-- Botpress Initialization Script -->
+    <script>
+      window.botpressWebChat.init({
+        "configUrl": "https://files.bpcontent.cloud/2025/02/21/18/20250221184729-IVWPX507.json",
+        "selector": "#webchat",  
+        "stylesheet": "styles.css", 
+        "showCloseButton": true,
+        "enableReset": true,
+        "showPoweredBy": false
+      });
+    </script>
 </body>
 </html>
