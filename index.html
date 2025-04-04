@@ -1,72 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HootyHoo Chatbot</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HootyHoo Chatbot</title>
 
-    <!-- Link to CSS file -->
-    <link rel="stylesheet" href="styles.css">
-
-    <!-- Botpress Chatbot Script -->
-   <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
-
-
-    <style>
-      #webchat .bpWebchat {
-        position: unset;
-        width: 100%;
-        height: 100%;
-        max-height: 100%;
-        max-width: 100%;
-      }
-      #webchat .bpFab {
-        display: none;
-      }
-    </style>
+  <!-- Optional Styling -->
+  <style>
+    #webchat {
+      width: 400px;
+      height: 600px;
+      margin: 20px auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      background-color: white;
+    }
+  </style>
 </head>
 <body>
-    <h1>Welcome to HootyHoo Chatbot</h1>
+  <h1>Welcome to HootyHoo Chatbot</h1>
 
-    <!-- Chatbot Container -->
-    <div id="webchat" style="width: 500px; height: 500px;"></div>
+  <!-- Chatbot Container -->
+  <div id="webchat"></div>
 
-<script>
-  // Function to load Botpress script dynamically
-  function loadBotpressScript(callback) {
-    var script = document.createElement("script");
-    script.src = "https://cdn.botpress.cloud/webchat/v2.3/inject.js";
-    script.async = true;
-    script.onload = callback; // Only initialize AFTER the script loads
-    document.head.appendChild(script);
-  }
-
-  // Initialize chatbot ONLY after script is fully loaded
-  function initializeChatbot() {
-    if (window.botpressWebChat) {
-      window.botpressWebChat.init({
-        botId: "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
-        clientId: "44c58e23-012d-4aa6-9617-abb818a66b42",
-        host: "https://cdn.botpress.cloud",
-        composerPlaceholder: "Let's go, Hoots!",
-        botName: "iHooty",
-        themeName: "prism",
-        stylesheet: "https://webchat-styling.css",
-        useSessionStorage: true,
-        selector: "#webchat"
-      });
-      console.log("Botpress Chatbot Initialized! ✅");
-    } else {
-      console.error("Botpress script still not available.");
-    }
-  }
-
-  // Load script and then initialize the chatbot
-  loadBotpressScript(initializeChatbot);
-</script>
-
-
-      <!-- Load External JavaScript -->
-    <script src="script.js"></script>
+  <!-- Botpress Chatbot Script (Placing it here for better page load) -->
+  <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
+  <script>
+    window.botpressWebChat.init({
+      "configUrl": "https://files.bpcontent.cloud/2025/02/21/18/20250221184729-IVWPX507.json",
+      "selector": "#webchat"
+    });
+  </script>
 </body>
 </html>
