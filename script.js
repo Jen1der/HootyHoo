@@ -288,3 +288,18 @@ window.botpress.on("webchat:message:received", (event) => {
   hootyController.reactToBotResponse(botResponse);
 });
 
+// Add model loading check
+hootModel.addEventListener('model-loaded', () => {
+  console.log('Hooty model loaded successfully!');
+  // List available animations
+  const animationMixer = hootModel.components['animation-mixer'];
+  if (animationMixer && animationMixer.mixer) {
+    console.log('Available animations:', 
+      Object.keys(animationMixer.mixer._clips).map(name => name));
+  }
+});
+
+hootModel.addEventListener('model-error', (error) => {
+  console.error('Error loading Hooty model:', error);
+});
+
