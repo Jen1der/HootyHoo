@@ -83,13 +83,12 @@
     <div id="webchat" style="height: 100%;"></div>
   </div>
   
-  <!-- A-Frame Scene -->
   <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
-    <!-- Assets preloading -->
-    <a-assets>
-      <!-- Add your Hooty 3D model here -->
-      <a-asset-item id="hooty-model" src="https://yourwebsite.com/assets/hooty.glb"></a-asset-item>
-    </a-assets>
+  <!-- Assets preloading -->
+  <a-assets>
+    <!-- Updated path to the models folder -->
+    <a-asset-item id="hooty-model" src="models/hooty.glb"></a-asset-item>
+  </a-assets>
     
     <!-- AR Content -->
     <a-entity id="ar-content" visible="false">
