@@ -323,3 +323,21 @@ debugButton.addEventListener('click', function() {
   arContent.setAttribute('visible', true);
   hootModel.setAttribute('position', '0 0 -2');
 });
+// Add this to your scene
+scene.setAttribute('webxr', 'requiredFeatures: hit-test');
+
+// Update your tap handling
+scene.addEventListener('click', function (evt) {
+  const xrSession = scene.renderer.xr.getSession();
+  
+  if (xrSession) {
+    // Place the model where the user tapped
+    const point = evt.detail.intersection.point;
+    hootModel.setAttribute('position', {
+      x: point.x,
+      y: point.y,
+      z: point.z
+    });
+    arContent.setAttribute('visible', true);
+  }
+});
