@@ -310,4 +310,16 @@ document.querySelector('#hooty').addEventListener('model-loaded', () => {
 document.querySelector('#hooty').addEventListener('model-error', (error) => {
   console.error('Error loading model:', error);
 });
+// Add a debug button to show the model regardless of AR
+const debugButton = document.createElement('button');
+debugButton.innerHTML = 'Show Model';
+debugButton.style.position = 'fixed';
+debugButton.style.top = '10px';
+debugButton.style.right = '10px';
+debugButton.style.zIndex = 1001;
+document.body.appendChild(debugButton);
 
+debugButton.addEventListener('click', function() {
+  arContent.setAttribute('visible', true);
+  hootModel.setAttribute('position', '0 0 -2');
+});
