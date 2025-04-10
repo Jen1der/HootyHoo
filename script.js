@@ -303,3 +303,11 @@ hootModel.addEventListener('model-error', (error) => {
   console.error('Error loading Hooty model:', error);
 });
 
+document.querySelector('#hooty').addEventListener('model-loaded', () => {
+  console.log('Model loaded successfully');
+});
+
+document.querySelector('#hooty').addEventListener('model-error', (error) => {
+  console.error('Error loading model:', error);
+});
+
