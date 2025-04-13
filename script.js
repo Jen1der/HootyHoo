@@ -341,3 +341,11 @@ scene.addEventListener('click', function (evt) {
     arContent.setAttribute('visible', true);
   }
 });
+
+scene.addEventListener('ar-hit-test-start', () => {
+  console.log('AR hit test started');
+});
+
+scene.addEventListener('ar-hit-test-end', () => {
+  console.log('AR hit test ended');
+});
