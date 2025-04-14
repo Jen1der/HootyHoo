@@ -375,3 +375,4 @@ scene.addEventListener('click', function (evt) {
     arContent.setAttribute('visible', true);
   }
 });
+
