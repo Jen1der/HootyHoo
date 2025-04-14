@@ -2,6 +2,13 @@ const params = new URL(window.location.href).searchParams;
 const configParams = params.get("config");
 let config = {};
 
+fetch('models/Animation_Idle_02_withSkin.glb')
+  .then(response => {
+    if (response.ok) console.log('Model file exists!');
+    else console.error('Model file not found!');
+  })
+  .catch(err => console.error('Error checking model:', err));
+
 try {
   if (!configParams) {
     throw "No config passed";
