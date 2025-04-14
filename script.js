@@ -365,4 +365,35 @@ scene.addEventListener('click', function (evt) {
     arContent.setAttribute('visible', true);
   }
 });
-
+// Add right before the closing </script> tag in your body
+document.addEventListener('DOMContentLoaded', function() {
+  const modelPath = './models/Animation_Idle_02_withSkin.glb';
+  console.log('Attempting to load model from:', new URL(modelPath, window.location.href).href);
+  
+  // Test if the file exists
+  fetch(modelPath)
+    .then(response => {
+      if (response.ok) {
+        console.log('✅ Model file exists!');
+      } else {
+        console.error('❌ Model file not found! Status:', response.status);
+      }
+    })
+    .catch(err => {
+      console.error('❌ Error checking model:', err);
+    });
+    
+  // Add event listeners for the model loading
+  const hootModel = document.querySelector('#hooty');
+  if (hootModel) {
+    hootModel.addEventListener('model-loaded', () => {
+      console.log('✅ Hooty model loaded successfully!');
+    });
+    
+    hootModel.addEventListener('model-error', (error) => {
+      console.error('❌ Error loading Hooty model:', error);
+    });
+  } else {
+    console.error('❌ Could not find #hooty element');
+  }
+});
