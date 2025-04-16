@@ -89,29 +89,27 @@
     <div id="webchat" style="height: 100%;"></div>
   </div>
   
-  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
+<a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
   <!-- Assets preloading -->
   <a-assets>
-    <!-- Updated path to the models folder -->
     <a-asset-item id="hooty-model" src="models/Animation_Idle_02_withSkin.glb"></a-asset-item>
   </a-assets>
-    
-    <!-- AR Content -->
-    <a-entity id="ar-content" visible="false">
-      <!-- Hooty 3D model with animation mixer -->
-      <a-entity
-        id="hooty"
-        gltf-model="#hooty-model"
-        position="0 0 -1"
-        scale="0.5 0.5 0.5"
-        animation-mixer="clip: idle"
-        rotation="0 0 0">
-      </a-entity>
+  
+  <!-- AR Content -->
+  <a-entity id="ar-content" visible="true">
+    <a-entity
+      id="hooty"
+      gltf-model="#hooty-model"
+      position="0 0 -1.5"
+      scale="0.5 0.5 0.5"
+      animation-mixer="clip: idle"
+      rotation="0 0 0">
     </a-entity>
-    
-    <!-- Camera -->
-    <a-entity camera look-controls position="0 1.6 0"></a-entity>
-  </a-scene>
+  </a-entity>
+  
+  <!-- Camera -->
+  <a-entity camera look-controls position="0 1.6 0"></a-entity>
+</a-scene>
   
   <script>
     // WebXR AR Setup
