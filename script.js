@@ -397,3 +397,14 @@ document.addEventListener('DOMContentLoaded', function() {
     console.error('❌ Could not find #hooty element');
   }
 });
+
+const modelEl = document.querySelector('#hooty');
+
+// Add these event listeners
+modelEl.addEventListener('model-loaded', function(e) {
+  console.log('Model loaded successfully!', e);
+});
+
+modelEl.addEventListener('model-error', function(e) {
+  console.error('Error loading model:', e);
+});
