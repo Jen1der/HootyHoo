@@ -14,13 +14,6 @@
   <!-- Load the Botpress webchat script -->
   <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
   <a-asset-item id="hooty-model" src="models/Animation_Idle_02_withSkin.glb"></a-asset-item>
-  <model-viewer 
-  src="/models/yourModel.glb" 
-  alt="3D model" 
-  camera-controls 
-  ar 
-  shadow-intensity="1">
-</model-viewer>
 
   
   <style>
@@ -103,11 +96,10 @@
     src="models/Animation_Idle_02_withSkin.glb"
     position="0 0 -2"
     scale="0.5 0.5 0.5"
-    animation-mixer="clip: idle"
+    animation-mixer="clip: idle; loop: repeat"
     rotation="0 0 0">
   </a-gltf-model>
 </a-entity>
-  
   <!-- Camera -->
   <a-entity camera look-controls position="0 1.6 0"></a-entity>
 </a-scene>
