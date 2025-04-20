@@ -22,117 +22,142 @@ document.addEventListener('DOMContentLoaded', function() {
   // Make Hooty visible by default in non-AR mode
   arContent.setAttribute('visible', true);
   
-  // Enhanced HootyController for animations
-  class HootyController {
-    constructor(modelEntity) {
-      this.modelEntity = modelEntity;
-      this.currentAnimation = 'idle';
-      this.animationQueue = [];
-      this.isAnimating = false;
-      
-      // Define animations - keeping these simpler for now
-      this.animations = {
-        'idle': { duration: 0, loop: true },
-        'dance': { duration: 5000, loop: false },
-        'wave': { duration: 3000, loop: false },
-        'heart': { duration: 3500, loop: false }
-      };
-      
-      // Keywords that trigger animations
-      this.animationTriggers = {
-        'dance': ['dance', 'dancing', 'move'],
-        'wave': ['wave', 'hello', 'hi', 'hey', 'greet'],
-        'heart': ['heart', 'love', 'like']
-      };
-      
-      // Initialize with idle animation
-      this.playAnimation('idle');
-      
-      // Make controller available globally
-      window.hootyController = this;
+ // Enhanced HootyController for animations using separate .glb files
+class HootyController {
+  constructor(modelEntity) {
+    this.modelEntity = modelEntity;
+    this.currentAnimation = 'idle';
+    this.animationQueue = [];
+    this.isAnimating = false;
+    
+    // Define animations with their corresponding .glb files
+    this.animations = {
+      'idle': { 
+        src: 'models/Animation_Idle_02_withSkin.glb',
+        duration: 0, 
+        loop: true 
+      },
+      'dance': { 
+        src: 'models/Animation_Dance.glb',  // Update with your actual filename
+        duration: 5000, 
+        loop: false 
+      },
+      'wave': { 
+        src: 'models/Animation_Wave.glb',  // Update with your actual filename
+        duration: 3000, 
+        loop: false 
+      },
+      'heart': { 
+        src: 'models/Animation_Heart.glb',  // Update with your actual filename
+        duration: 3500, 
+        loop: false 
+      }
+    };
+    
+    // Keywords that trigger animations
+    this.animationTriggers = {
+      'dance': ['dance', 'dancing', 'move'],
+      'wave': ['wave', 'hello', 'hi', 'hey', 'greet'],
+      'heart': ['heart', 'love', 'like']
+    };
+    
+    // Store original position, scale and rotation
+    this.originalPosition = this.modelEntity.getAttribute('position');
+    this.originalScale = this.modelEntity.getAttribute('scale');
+    this.originalRotation = this.modelEntity.getAttribute('rotation');
+    
+    // Initialize with idle animation
+    this.playAnimation('idle');
+    
+    // Make controller available globally
+    window.hootyController = this;
+  }
+  
+  // Check message for animation triggers
+  checkForAnimationTriggers(message) {
+    if (!message) return false;
+    
+    const lowercaseMsg = message.toLowerCase();
+    console.log("Checking for triggers in:", lowercaseMsg);
+    
+    for (const [animation, triggers] of Object.entries(this.animationTriggers)) {
+      if (triggers.some(trigger => lowercaseMsg.includes(trigger))) {
+        console.log(`Found trigger for ${animation}`);
+        this.playAnimation(animation);
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  // Play an animation by loading the corresponding .glb file
+  playAnimation(animationName) {
+    if (!this.animations[animationName]) {
+      console.warn(`Animation "${animationName}" not found!`);
+      return;
     }
     
-    // Check message for animation triggers
-    checkForAnimationTriggers(message) {
-      if (!message) return false;
-      
-      const lowercaseMsg = message.toLowerCase();
-      console.log("Checking for triggers in:", lowercaseMsg);
-      
-      for (const [animation, triggers] of Object.entries(this.animationTriggers)) {
-        if (triggers.some(trigger => lowercaseMsg.includes(trigger))) {
-          console.log(`Found trigger for ${animation}`);
-          this.playAnimation(animation);
-          return true;
-        }
-      }
-      return false;
+    console.log(`Playing animation: ${animationName}`);
+    
+    // Add to queue if already animating
+    if (this.isAnimating && animationName !== 'idle') {
+      this.animationQueue.push(animationName);
+      return;
     }
     
-    // Play an animation
-    playAnimation(animationName) {
-      if (!this.animations[animationName]) {
-        console.warn(`Animation "${animationName}" not found!`);
-        return;
-      }
+    // Set current animation
+    this.currentAnimation = animationName;
+    
+    try {
+      // Load the new model file
+      const modelSrc = this.animations[animationName].src;
+      this.modelEntity.setAttribute('src', modelSrc);
       
-      console.log(`Playing animation: ${animationName}`);
+      // Apply any animation-mixer properties if needed
+      // (for handling animation clips within the .glb if any)
+      this.modelEntity.setAttribute('animation-mixer', {
+        loop: this.animations[animationName].loop ? 'repeat' : 'once',
+        timeScale: 1
+      });
       
-      // Add to queue if already animating
-      if (this.isAnimating && animationName !== 'idle') {
-        this.animationQueue.push(animationName);
-        return;
-      }
+      // Make sure position, scale and rotation are preserved
+      this.modelEntity.setAttribute('position', this.originalPosition);
+      this.modelEntity.setAttribute('scale', this.originalScale);
+      this.modelEntity.setAttribute('rotation', this.originalRotation);
       
-      // Play the animation
-      this.currentAnimation = animationName;
-      
-      try {
-        // For animations, we'll try both approaches:
-        // 1. Setting animation-mixer with clip name
-        this.modelEntity.setAttribute('animation-mixer', {
-          clip: animationName,
-          loop: this.animations[animationName].loop ? 'repeat' : 'once',
-          timeScale: 1
-        });
+      // Handle non-looping animations
+      if (!this.animations[animationName].loop) {
+        this.isAnimating = true;
         
-        // Handle non-looping animations
-        if (!this.animations[animationName].loop) {
-          this.isAnimating = true;
+        // Return to idle after animation completes
+        setTimeout(() => {
+          this.isAnimating = false;
           
-          // Return to idle after animation completes
-          setTimeout(() => {
-            this.isAnimating = false;
-            
-            // Play next animation in queue if exists
-            if (this.animationQueue.length > 0) {
-              const nextAnimation = this.animationQueue.shift();
-              this.playAnimation(nextAnimation);
-            } else {
-              // Return to idle
-              this.currentAnimation = 'idle';
-              this.modelEntity.setAttribute('animation-mixer', {
-                clip: 'idle',
-                loop: 'repeat'
-              });
-            }
-          }, this.animations[animationName].duration);
-        }
-      } catch (err) {
-        console.error("Error setting animation:", err);
+          // Play next animation in queue if exists
+          if (this.animationQueue.length > 0) {
+            const nextAnimation = this.animationQueue.shift();
+            this.playAnimation(nextAnimation);
+          } else {
+            // Return to idle
+            this.playAnimation('idle');
+          }
+        }, this.animations[animationName].duration);
       }
-    }
-    
-    // React to user message
-    reactToMessage(message) {
-      return this.checkForAnimationTriggers(message);
-    }
-    
-    // React to bot response
-    reactToBotResponse(response) {
-      return this.checkForAnimationTriggers(response);
+    } catch (err) {
+      console.error("Error setting animation:", err);
     }
   }
+  
+  // React to user message
+  reactToMessage(message) {
+    return this.checkForAnimationTriggers(message);
+  }
+  
+  // React to bot response
+  reactToBotResponse(response) {
+    return this.checkForAnimationTriggers(response);
+  }
+}
 
   // Set up model loading and error handlers
   if (hootModel) {
