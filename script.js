@@ -38,17 +38,17 @@ class HootyController {
         loop: true 
       },
       'dance': { 
-        src: 'models/Animation_Dance.glb',  // Update with your actual filename
+        src: 'models/Animation_Indoor_Swing_withSkin.glb',  
         duration: 5000, 
         loop: false 
       },
       'wave': { 
-        src: 'models/Animation_Wave.glb',  // Update with your actual filename
+        src: 'models/Animation_Big_Wave_Hello_withSkin.glb',  
         duration: 3000, 
         loop: false 
       },
       'heart': { 
-        src: 'models/Animation_Heart.glb',  // Update with your actual filename
+        src: 'models/Animation_Big_Heart_Gesture_withSkin.glb',  
         duration: 3500, 
         loop: false 
       }
