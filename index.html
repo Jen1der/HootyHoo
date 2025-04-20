@@ -19,7 +19,7 @@
     body {
       margin: 0;
       overflow: hidden;
-      font-family: 'Bebas Neue', sans-serif;
+      font-family: 'Arial', sans-serif;
     }
     
     /* Chat interface that overlays the AR scene */
@@ -50,6 +50,7 @@
       color: white;
       font-weight: bold;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
     }
     
     .instructions {
@@ -64,7 +65,7 @@
       z-index: 1000;
     }
     
-    #animation-debug {
+    #animation-controls {
       position: fixed;
       bottom: 80px;
       left: 10px;
@@ -73,15 +74,28 @@
       padding: 10px;
       border-radius: 5px;
       z-index: 999;
+      text-align: center;
     }
     
-    #animation-debug button {
-      margin: 4px;
-      padding: 4px 8px;
+    .anim-button {
+      margin: 5px;
+      padding: 8px 12px;
       border: none;
-      border-radius: 4px;
+      border-radius: 20px;
       background-color: #ffc53d;
+      color: #333;
+      font-weight: bold;
       cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .anim-button:hover {
+      background-color: #ffb300;
+      transform: scale(1.05);
+    }
+    
+    .anim-button:active {
+      transform: scale(0.95);
     }
   </style>
 </head>
@@ -100,24 +114,24 @@
     <div id="webchat" style="height: 100%;"></div>
   </div>
   
-  <!-- Animation debug panel -->
-  <div id="animation-debug">
-    <h3>Test Animations</h3>
-    <button onclick="window.hootyController && window.hootyController.playAnimation('dance')">Dance</button>
-    <button onclick="window.hootyController && window.hootyController.playAnimation('wave')">Wave</button>
-    <button onclick="window.hootyController && window.hootyController.playAnimation('heart')">Heart</button>
-    <button onclick="window.hootyController && window.hootyController.playAnimation('idle')">Idle</button>
+  <!-- Animation controls buttons -->
+  <div id="animation-controls">
+    <h4>Test Animations</h4>
+    <button class="anim-button" data-anim="dance">Dance</button>
+    <button class="anim-button" data-anim="wave">Wave</button>
+    <button class="anim-button" data-anim="heart">Heart</button>
+    <button class="anim-button" data-anim="idle">Idle</button>
   </div>
   
   <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
     <!-- Hooty 3D model with animation mixer -->
-    <a-entity id="ar-content" visible="false">
+    <a-entity id="ar-content" visible="true">
       <a-gltf-model
         id="hooty"
         src="models/Animation_Idle_02_withSkin.glb"
-        position="0 0 -2"
+        position="0 -0.5 -2"
         scale="0.5 0.5 0.5"
-        animation-mixer="loop: repeat"
+        animation-mixer="clip: idle; loop: repeat"
         rotation="0 0 0">
       </a-gltf-model>
     </a-entity>
@@ -126,7 +140,7 @@
     <a-entity camera look-controls position="0 1.6 0"></a-entity>
   </a-scene>
   
-  <!-- Include your fixed JavaScript -->
+  <!-- Include your JavaScript -->
   <script src="script.js"></script>
 </body>
 </html>
