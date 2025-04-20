@@ -440,61 +440,81 @@ function listAvailableAnimations() {
   });
 }
 
-// Enhance the HootyController to update animation names
+// Enhanced HootyController for specific .glb animations
 class HootyController {
   constructor(modelEntity) {
     this.modelEntity = modelEntity;
     this.currentAnimation = 'idle';
     this.animationQueue = [];
     this.isAnimating = false;
+    this.baseModelPath = 'models/'; // Base path to your models folder
     
-    // Define animation clips and their durations (in ms)
+    // Define animations with their corresponding .glb files
     this.animations = {
-      'idle': { duration: 0, loop: true },      // Default state, continuous loop
-      'dance': { duration: 5000, loop: false }, // Dance for 5 seconds
-      'wave': { duration: 2000, loop: false },  // Wave for 2 seconds
-      'jump': { duration: 1500, loop: false },  // Jump for 1.5 seconds
-      'love': { duration: 3000, loop: false }, // Cheer for 3 seconds
-      'run': { duration: 2500, loop: false }  // Pitching motion for 2.5 seconds
+      'idle': { 
+        file: 'Animation_Idle_02_withSkin.glb',
+        duration: 0, 
+        loop: true 
+      },
+      'wave': { 
+        file: 'Animation_Big_Wave_Hello_withSkin.glb',
+        duration: 4000, 
+        loop: false 
+      },
+      'heart': { 
+        file: 'Animation_Big_Heart_Gesture_withSkin.glb',
+        duration: 3500, 
+        loop: false 
+      },
+      'discuss': { 
+        file: 'Animation_Discuss_While_Moving_withSkin.glb',
+        duration: 5000, 
+        loop: false 
+      },
+      'dance': { 
+        file: 'Animation_FunnyDancing_01_withSkin.glb',
+        duration: 6000, 
+        loop: false 
+      },
+      'gangnam': { 
+        file: 'Animation_Gangnam_Groove_withSkin.glb',
+        duration: 7000, 
+        loop: false 
+      },
+      'swing': { 
+        file: 'Animation_Indoor_Swing_withSkin.glb',
+        duration: 5000, 
+        loop: false 
+      },
+      'run': { 
+        file: 'Animation_Running_withSkin.glb',
+        duration: 4000, 
+        loop: false 
+      },
+      'chat': { 
+        file: 'Animation_Stand_and_Chat_withSkin.glb',
+        duration: 5000, 
+        loop: false 
+      },
+      'walk': { 
+        file: 'Animation_Walking_withSkin.glb',
+        duration: 4000, 
+        loop: false 
+      }
     };
     
     // Keywords that trigger animations
     this.animationTriggers = {
-      'dance': ['dance', 'dancing', 'move'],
-      'wave': ['wave', 'hello', 'hi', 'hey'],
-      'jump': ['jump', 'hop', 'excited'],
-      'love': ['love', 'heart', 'fearless', 'happy', 'yay'],
-      'run': ['run', 'jog', 'homerun', 'grandslam']
+      'wave': ['wave', 'hello', 'hi', 'hey', 'greet'],
+      'heart': ['heart', 'love', 'like', 'adore'],
+      'discuss': ['discuss', 'explain', 'talk', 'show me'],
+      'dance': ['dance', 'dancing', 'move', 'groove'],
+      'gangnam': ['gangnam', 'style', 'k-pop', 'korean dance'],
+      'swing': ['swing', 'sway', 'rock'],
+      'run': ['run', 'sprint', 'hurry', 'fast'],
+      'chat': ['chat', 'speak', 'conversation'],
+      'walk': ['walk', 'stroll', 'wander']
     };
-    
-    // Map of our animation names to actual clip names in the model
-    this.clipNameMap = {
-      'idle': 'Animation_Idle_02_withSkin.glb', // Will be updated when we know the actual names
-      'dance': 'Animation_Gangnam_Groove_withSkin.glb',
-      'wave': 'Animation_Big_Wave_Hello_withSkin.glb',
-      'jump': 'jump',
-      'love': 'Animation_Big_Heart_Gesture_withSkin.glb',
-      'run': 'Animation_Running_withSkin.glb'
-    };
-  }
-  
-  // Update animation mapping based on available clips
-  updateAnimationMap(availableClips) {
-    console.log('models:', availableClips);
-    
-    // Try to match our animation names with available clips
-    for (const [ourName, data] of Object.entries(this.animations)) {
-      // Look for matches - case insensitive
-      const matchingClip = availableClips.find(clipName => 
-        clipName.toLowerCase().includes(ourName.toLowerCase()));
-      
-      if (matchingClip) {
-        console.log(`Mapped "${ourName}" to actual clip "${matchingClip}"`);
-        this.clipNameMap[ourName] = matchingClip;
-      } else {
-        console.warn(`No matching clip found for "${ourName}"`);
-      }
-    }
   }
   
   // Check message for animation triggers
@@ -510,33 +530,38 @@ class HootyController {
     return false;
   }
   
-  // Play an animation
+  // Play an animation by loading the specific .glb file
   playAnimation(animationName) {
     if (!this.animations[animationName]) {
       console.warn(`Animation "${animationName}" not found!`);
       return;
     }
     
-    // Get the actual clip name from our mapping
-    const actualClipName = this.clipNameMap[animationName] || animationName;
-    console.log(`Playing animation: ${animationName} (clip: ${actualClipName})`);
+    console.log(`Playing animation: ${animationName}`);
     
     // Add to queue if already animating
-    if (this.isAnimating && !this.animations[animationName].loop) {
+    if (this.isAnimating && animationName !== 'idle') {
       this.animationQueue.push(animationName);
       return;
     }
     
-    // Play the animation
-    this.currentAnimation = animationName;
-    this.modelEntity.setAttribute('animation-mixer', {
-      clip: actualClipName,
-      loop: this.animations[animationName].loop ? 'repeat' : 'once'
-    });
+    // Get the animation data
+    const animation = this.animations[animationName];
     
-    // Handle non-looping animations
-    if (!this.animations[animationName].loop) {
+    // Update the model source to the new animation file
+    this.currentAnimation = animationName;
+    this.modelEntity.setAttribute('src', this.baseModelPath + animation.file);
+    
+    // Handle looping appropriately
+    if (animation.loop) {
+      this.modelEntity.setAttribute('animation-mixer', {
+        loop: 'repeat'
+      });
+    } else {
       this.isAnimating = true;
+      this.modelEntity.setAttribute('animation-mixer', {
+        loop: 'once'
+      });
       
       // Return to idle after animation completes
       setTimeout(() => {
@@ -549,13 +574,12 @@ class HootyController {
         } else {
           // Return to idle
           this.currentAnimation = 'idle';
-          const idleClipName = this.clipNameMap['idle'];
+          this.modelEntity.setAttribute('src', this.baseModelPath + this.animations['idle'].file);
           this.modelEntity.setAttribute('animation-mixer', {
-            clip: idleClipName,
             loop: 'repeat'
           });
         }
-      }, this.animations[animationName].duration);
+      }, animation.duration);
     }
   }
   
@@ -566,7 +590,6 @@ class HootyController {
   
   // React to bot response
   reactToBotResponse(response) {
-    // Bot responses can also trigger animations
     return this.checkForAnimationTriggers(response);
   }
 }
@@ -582,9 +605,6 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Create and store the controller globally so it can be accessed
   window.hootyController = new HootyController(hootModel);
-  
-  // List available animations when the model loads
-  listAvailableAnimations();
   
   // Connect to Botpress messages
   if (window.botpress) {
@@ -624,13 +644,15 @@ document.addEventListener('DOMContentLoaded', function() {
   animDebugDiv.style.background = 'rgba(0,0,0,0.7)';
   animDebugDiv.style.padding = '10px';
   animDebugDiv.style.borderRadius = '5px';
+  animDebugDiv.style.color = 'white';
+  animDebugDiv.innerHTML = '<h3>Animation Test</h3>';
   document.body.appendChild(animDebugDiv);
   
   // Add test buttons for each animation
-  const animations = ['idle', 'dance', 'wave', 'jump', 'cheer', 'pitch'];
+  const animations = Object.keys(window.hootyController.animations);
   animations.forEach(anim => {
     const btn = document.createElement('button');
-    btn.textContent = `Test ${anim}`;
+    btn.textContent = anim;
     btn.style.margin = '5px';
     btn.style.padding = '5px 10px';
     btn.addEventListener('click', () => {
@@ -642,17 +664,16 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-// Fix potential duplicate model issue
-// Remove duplicate model reference if it exists
-document.addEventListener('DOMContentLoaded', function() {
-  const assetItems = document.querySelectorAll('a-asset-item#hooty-model');
-  if (assetItems.length > 1) {
-    console.warn('Found duplicate model references. Removing extras.');
-    for (let i = 1; i < assetItems.length; i++) {
-      assetItems[i].remove();
-    }
+// Also update the initialization in your main A-Frame setup
+document.querySelector('a-scene').addEventListener('loaded', function() {
+  console.log('A-Frame scene loaded!');
+  
+  // Make sure we're using the correct initial model
+  const hootModel = document.querySelector('#hooty');
+  if (hootModel) {
+    hootModel.setAttribute('src', 'models/Animation_Idle_02_withSkin.glb');
+    hootModel.setAttribute('animation-mixer', {loop: 'repeat'});
   }
 });
 
-// Add a console output to confirm script is loaded
 console.log('Hooty animation enhancement script loaded!');
