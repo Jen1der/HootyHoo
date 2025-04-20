@@ -3,9 +3,25 @@ document.addEventListener('DOMContentLoaded', function() {
   // Get references to key elements
   const scene = document.querySelector('a-scene');
   const arContent = document.querySelector('#ar-content');
-  const hootModel = document.querySelector('#hooty');
   const chatToggle = document.querySelector('#chat-toggle');
   const chatContainer = document.querySelector('#chat-container');
+  
+  // Update the Hooty model reference to ensure proper default animation
+  let hootModel = document.querySelector('#hooty');
+  
+  // Make sure the model has the correct initial source
+  if (hootModel) {
+    // Set the default idle animation
+    hootModel.setAttribute('src', 'models/Animation_Idle_02_withSkin.glb');
+    
+    // Set up animation mixer
+    hootModel.setAttribute('animation-mixer', {
+      clip: 'idle',
+      loop: 'repeat'
+    });
+  } else {
+    console.error('❌ Could not find #hooty element');
+  }
   
   // Hide chat initially
   chatContainer.style.display = 'none';
@@ -21,6 +37,46 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Make Hooty visible by default in non-AR mode
   arContent.setAttribute('visible', true);
+  
+  // Set up model loading and error handlers
+  if (hootModel) {
+    // Debug info about the model loading
+    hootModel.addEventListener('model-loaded', (event) => {
+      console.log('✅ Hooty model loaded successfully!');
+      
+      // Initialize the controller after model loads
+      window.hootyController = new HootyController(hootModel);
+      
+      // Set up animation test buttons
+      setupAnimationButtons();
+    });
+    
+    hootModel.addEventListener('model-error', (error) => {
+      console.error('❌ Error loading Hooty model:', error.detail);
+    });
+  }
+  
+  // Function to set up animation buttons
+  function setupAnimationButtons() {
+    const animButtons = document.querySelectorAll('.anim-button');
+    if (animButtons.length === 0) return;
+    
+    // Update each animation button to trigger animations
+    animButtons.forEach(button => {
+      const animType = button.getAttribute('data-anim');
+      button.addEventListener('click', () => {
+        console.log(`Animation button clicked: ${animType}`);
+        if (window.hootyController) {
+          window.hootyController.playAnimation(animType);
+        } else {
+          console.warn("Hooty controller not initialized");
+        }
+      });
+    });
+  }
+
+  // Rest of your code including Botpress initialization and AR interactions...
+});
   
  // Enhanced HootyController for animations using separate .glb files
 class HootyController {
