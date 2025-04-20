@@ -13,8 +13,6 @@
   <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
   <!-- Load the Botpress webchat script -->
   <script src="https://cdn.botpress.cloud/webchat/v2.3/inject.js"></script>
-  <a-asset-item id="hooty-model" src="models/Animation_Idle_02_withSkin.glb"></a-asset-item>
-
   
   <style>
     /* Minimize UI for AR experience */
@@ -65,13 +63,33 @@
       max-width: 300px;
       z-index: 1000;
     }
+    
+    #animation-debug {
+      position: fixed;
+      bottom: 80px;
+      left: 10px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 999;
+    }
+    
+    #animation-debug button {
+      margin: 4px;
+      padding: 4px 8px;
+      border: none;
+      border-radius: 4px;
+      background-color: #ffc53d;
+      cursor: pointer;
+    }
   </style>
 </head>
 
 <body>
   <div class="instructions">
     Point your camera at a flat surface and tap to place Hooty.
-    Say "dance" to make Hooty dance!
+    Say "dance", "wave", or "heart" to make Hooty perform!
   </div>
   
   <!-- Chat toggle button -->
@@ -82,115 +100,33 @@
     <div id="webchat" style="height: 100%;"></div>
   </div>
   
-<a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
-  <!-- Assets preloading -->
-  <a-assets>
-    <a-asset-item id="hooty-model" src="models/Animation_Idle_02_withSkin.glb"></a-asset-item>
-  </a-assets>
+  <!-- Animation debug panel -->
+  <div id="animation-debug">
+    <h3>Test Animations</h3>
+    <button onclick="window.hootyController && window.hootyController.playAnimation('dance')">Dance</button>
+    <button onclick="window.hootyController && window.hootyController.playAnimation('wave')">Wave</button>
+    <button onclick="window.hootyController && window.hootyController.playAnimation('heart')">Heart</button>
+    <button onclick="window.hootyController && window.hootyController.playAnimation('idle')">Idle</button>
+  </div>
   
-<!-- AR Content -->
-<a-entity id="ar-content" visible="true">
-  <!-- Hooty 3D model with animation mixer -->
-<a-gltf-model
-  id="hooty"
-  src="models/Animation_Idle_02_withSkin.glb"
-  position="0 0 -2"
-  scale="0.5 0.5 0.5"
-  animation-mixer="loop: repeat"
-  rotation="0 0 0">
-</a-gltf-model>
-</a-entity>
-  <!-- Camera -->
-  <a-entity camera look-controls position="0 1.6 0"></a-entity>
-</a-scene>
+  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
+    <!-- Hooty 3D model with animation mixer -->
+    <a-entity id="ar-content" visible="false">
+      <a-gltf-model
+        id="hooty"
+        src="models/Animation_Idle_02_withSkin.glb"
+        position="0 0 -2"
+        scale="0.5 0.5 0.5"
+        animation-mixer="loop: repeat"
+        rotation="0 0 0">
+      </a-gltf-model>
+    </a-entity>
+    
+    <!-- Camera -->
+    <a-entity camera look-controls position="0 1.6 0"></a-entity>
+  </a-scene>
   
-  <script>
-    // WebXR AR Setup
-    window.addEventListener('DOMContentLoaded', function() {
-      const scene = document.querySelector('a-scene');
-      const arContent = document.querySelector('#ar-content');
-      const hootModel = document.querySelector('#hooty');
-      const chatToggle = document.querySelector('#chat-toggle');
-      const chatContainer = document.querySelector('#chat-container');
-      
-      // Hide chat initially
-      chatContainer.style.display = 'none';
-      
-      // Toggle chat visibility
-      chatToggle.addEventListener('click', function() {
-        if (chatContainer.style.display === 'none') {
-          chatContainer.style.display = 'block';
-        } else {
-          chatContainer.style.display = 'none';
-        }
-      });
-      
-      // Handle AR session start
-      scene.addEventListener('enter-vr', function() {
-        // Make content visible when AR starts
-        arContent.setAttribute('visible', true);
-      });
-      
-      // Tap to place model
-      scene.addEventListener('click', function() {
-        const cameraPosition = document.querySelector('[camera]').getAttribute('position');
-        hootModel.setAttribute('position', {
-          x: 0,
-          y: -0.5, // Place slightly below camera level
-          z: -1.5  // Place in front of camera
-        });
-      });
-      
-      // Initialize Botpress
-      function initBotpress() {
-        if (window.botpress) {
-          window.botpress.on("webchat:ready", () => {
-            console.log("Webchat is ready!");
-          });
-          
-          // Listen for messages to trigger animations
-          window.botpress.on("webchat:message:received", (event) => {
-            console.log("Message received:", event);
-            
-            // Check if message contains animation triggers
-            const message = event.message?.text?.toLowerCase() || "";
-            if (message.includes('dance')) {
-              hootModel.setAttribute('animation-mixer', {clip: 'dance', loop: 'repeat', repetitions: 2});
-              
-              // Return to idle after dancing
-              setTimeout(() => {
-                hootModel.setAttribute('animation-mixer', {clip: 'idle'});
-              }, 5000);
-            }
-          });
-          
-          // Initialize the webchat
-          window.botpress.init({
-            "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
-            "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
-            "hostUrl": "https://cdn.botpress.cloud/webchat/v2",
-            "messagingUrl": "https://messaging.botpress.cloud",
-            "webhookId": "44c58e23-012d-4aa6-9617-abb818a66b42",
-            "configuration": {
-              "composerPlaceholder": "Talk to Hooty...",
-              "botName": "iHooty",
-              "color": "#ffc53d",
-              "variant": "solid",
-              "themeMode": "light",
-              "enableCookie": false,
-              "externalAuthEnabled": false
-            },
-            "selector": "#webchat"
-          });
-        } else {
-          console.error("Botpress not loaded!");
-          setTimeout(initBotpress, 1000); // Retry after 1 second
-        }
-      }
-      
-      // Delay initialization to ensure all scripts are loaded
-      setTimeout(initBotpress, 2000);
-    });
-  </script>
+  <!-- Include your fixed JavaScript -->
+  <script src="script.js"></script>
 </body>
 </html>
