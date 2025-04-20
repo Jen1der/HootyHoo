@@ -77,6 +77,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Rest of your code including Botpress initialization and AR interactions...
 });
+const hooty = document.querySelector('#hooty');
+hooty.addEventListener('model-loaded', () => {
+  hooty.setAttribute('animation-mixer', 'clip: Idle_02; loop: repeat;');
+});
+
   
  // Enhanced HootyController for animations using separate .glb files
 class HootyController {
