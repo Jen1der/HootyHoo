@@ -103,7 +103,7 @@
 <body>
   <div class="instructions">
     Point your camera at a flat surface and tap to place Hooty.
-    Say "dance", "wave", or "heart" to make Hooty perform!
+    Say "dance", "wave", "gangnam", "salsa", "baseball", or "hip-hop" to make Hooty perform!
   </div>
   
   <!-- Chat toggle button -->
@@ -119,21 +119,24 @@
     <h4>Test Animations</h4>
     <button class="anim-button" data-anim="dance">Dance</button>
     <button class="anim-button" data-anim="wave">Wave</button>
-    <button class="anim-button" data-anim="heart">Heart</button>
+    <button class="anim-button" data-anim="gangnam">Gangnam</button>
+    <button class="anim-button" data-anim="salsa">Salsa</button>
+    <button class="anim-button" data-anim="baseball-pitch">Pitch</button>
+    <button class="anim-button" data-anim="hip-hop">Hip Hop</button>
     <button class="anim-button" data-anim="idle">Idle</button>
   </div>
   
   <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
     <!-- Hooty 3D model with animation mixer -->
     <a-entity id="ar-content" visible="true">
-  <a-gltf-model
-  id="hooty"
-  src="models/Animation_Idle_02_withSkin.glb"
-  position="0 -0.5 -2"
-  scale="0.5 0.5 0.5"
-  rotation="0 0 0"
-  animation-mixer="clip: Idle_02; loop: repeat;">
-</a-gltf-model>
+      <a-gltf-model
+        id="hooty"
+        src="models/Happy Idle.glb"
+        position="0 -0.5 -2"
+        scale="0.5 0.5 0.5"
+        rotation="0 0 0"
+        animation-mixer="clip: idle; loop: repeat;">
+      </a-gltf-model>
     </a-entity>
     
     <!-- Camera -->
