@@ -408,3 +408,251 @@ modelEl.addEventListener('model-loaded', function(e) {
 modelEl.addEventListener('model-error', function(e) {
   console.error('Error loading model:', e);
 });
+// Add this function to your JavaScript to list available animations when the model loads
+function listAvailableAnimations() {
+  const hootModel = document.querySelector('#hooty');
+  
+  hootModel.addEventListener('model-loaded', (event) => {
+    console.log('✅ Hooty model loaded successfully!');
+    
+    // Access the model's animation mixer
+    const mixer = hootModel.components['animation-mixer'].mixer;
+    if (mixer) {
+      // Log all available animation clips
+      console.log('Available animations:', Object.keys(mixer._clips));
+      
+      // Now we know exactly what animation names to use
+      const availableClips = Object.keys(mixer._clips);
+      
+      // Update your HootyController with the actual clip names from your model
+      if (window.hootyController) {
+        // Match your animation names to the actual clips
+        // For example, if your model has "Idle_Anim" instead of "idle":
+        window.hootyController.updateAnimationMap(availableClips);
+      }
+    } else {
+      console.error('❌ Animation mixer not found on the model');
+    }
+  });
+  
+  hootModel.addEventListener('model-error', (error) => {
+    console.error('❌ Error loading Hooty model:', error.detail);
+  });
+}
+
+// Enhance the HootyController to update animation names
+class HootyController {
+  constructor(modelEntity) {
+    this.modelEntity = modelEntity;
+    this.currentAnimation = 'idle';
+    this.animationQueue = [];
+    this.isAnimating = false;
+    
+    // Define animation clips and their durations (in ms)
+    this.animations = {
+      'idle': { duration: 0, loop: true },      // Default state, continuous loop
+      'dance': { duration: 5000, loop: false }, // Dance for 5 seconds
+      'wave': { duration: 2000, loop: false },  // Wave for 2 seconds
+      'jump': { duration: 1500, loop: false },  // Jump for 1.5 seconds
+      'love': { duration: 3000, loop: false }, // Cheer for 3 seconds
+      'run': { duration: 2500, loop: false }  // Pitching motion for 2.5 seconds
+    };
+    
+    // Keywords that trigger animations
+    this.animationTriggers = {
+      'dance': ['dance', 'dancing', 'move'],
+      'wave': ['wave', 'hello', 'hi', 'hey'],
+      'jump': ['jump', 'hop', 'excited'],
+      'love': ['love', 'heart', 'fearless', 'happy', 'yay'],
+      'run': ['run', 'jog', 'homerun', 'grandslam']
+    };
+    
+    // Map of our animation names to actual clip names in the model
+    this.clipNameMap = {
+      'idle': 'Animation_Idle_02_withSkin.glb', // Will be updated when we know the actual names
+      'dance': 'Animation_Gangnam_Groove_withSkin.glb',
+      'wave': 'Animation_Big_Wave_Hello_withSkin.glb',
+      'jump': 'jump',
+      'love': 'Animation_Big_Heart_Gesture_withSkin.glb',
+      'run': 'Animation_Running_withSkin.glb'
+    };
+  }
+  
+  // Update animation mapping based on available clips
+  updateAnimationMap(availableClips) {
+    console.log('models:', availableClips);
+    
+    // Try to match our animation names with available clips
+    for (const [ourName, data] of Object.entries(this.animations)) {
+      // Look for matches - case insensitive
+      const matchingClip = availableClips.find(clipName => 
+        clipName.toLowerCase().includes(ourName.toLowerCase()));
+      
+      if (matchingClip) {
+        console.log(`Mapped "${ourName}" to actual clip "${matchingClip}"`);
+        this.clipNameMap[ourName] = matchingClip;
+      } else {
+        console.warn(`No matching clip found for "${ourName}"`);
+      }
+    }
+  }
+  
+  // Check message for animation triggers
+  checkForAnimationTriggers(message) {
+    const lowercaseMsg = message.toLowerCase();
+    
+    for (const [animation, triggers] of Object.entries(this.animationTriggers)) {
+      if (triggers.some(trigger => lowercaseMsg.includes(trigger))) {
+        this.playAnimation(animation);
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  // Play an animation
+  playAnimation(animationName) {
+    if (!this.animations[animationName]) {
+      console.warn(`Animation "${animationName}" not found!`);
+      return;
+    }
+    
+    // Get the actual clip name from our mapping
+    const actualClipName = this.clipNameMap[animationName] || animationName;
+    console.log(`Playing animation: ${animationName} (clip: ${actualClipName})`);
+    
+    // Add to queue if already animating
+    if (this.isAnimating && !this.animations[animationName].loop) {
+      this.animationQueue.push(animationName);
+      return;
+    }
+    
+    // Play the animation
+    this.currentAnimation = animationName;
+    this.modelEntity.setAttribute('animation-mixer', {
+      clip: actualClipName,
+      loop: this.animations[animationName].loop ? 'repeat' : 'once'
+    });
+    
+    // Handle non-looping animations
+    if (!this.animations[animationName].loop) {
+      this.isAnimating = true;
+      
+      // Return to idle after animation completes
+      setTimeout(() => {
+        this.isAnimating = false;
+        
+        // Play next animation in queue if exists
+        if (this.animationQueue.length > 0) {
+          const nextAnimation = this.animationQueue.shift();
+          this.playAnimation(nextAnimation);
+        } else {
+          // Return to idle
+          this.currentAnimation = 'idle';
+          const idleClipName = this.clipNameMap['idle'];
+          this.modelEntity.setAttribute('animation-mixer', {
+            clip: idleClipName,
+            loop: 'repeat'
+          });
+        }
+      }, this.animations[animationName].duration);
+    }
+  }
+  
+  // React to user message
+  reactToMessage(message) {
+    return this.checkForAnimationTriggers(message);
+  }
+  
+  // React to bot response
+  reactToBotResponse(response) {
+    // Bot responses can also trigger animations
+    return this.checkForAnimationTriggers(response);
+  }
+}
+
+// Initialize when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+  // Make sure the model element exists before trying to use it
+  const hootModel = document.querySelector('#hooty');
+  if (!hootModel) {
+    console.error('❌ Could not find #hooty element');
+    return;
+  }
+  
+  // Create and store the controller globally so it can be accessed
+  window.hootyController = new HootyController(hootModel);
+  
+  // List available animations when the model loads
+  listAvailableAnimations();
+  
+  // Connect to Botpress messages
+  if (window.botpress) {
+    window.botpress.on("webchat:message:sent", (event) => {
+      const userMessage = event.message?.text || "";
+      window.hootyController.reactToMessage(userMessage);
+    });
+    
+    window.botpress.on("webchat:message:received", (event) => {
+      const botResponse = event.message?.text || "";
+      window.hootyController.reactToBotResponse(botResponse);
+    });
+  } else {
+    console.warn("Botpress not available yet. Will try to connect later.");
+    // Try again after Botpress is initialized
+    setTimeout(() => {
+      if (window.botpress) {
+        window.botpress.on("webchat:message:sent", (event) => {
+          const userMessage = event.message?.text || "";
+          window.hootyController.reactToMessage(userMessage);
+        });
+        
+        window.botpress.on("webchat:message:received", (event) => {
+          const botResponse = event.message?.text || "";
+          window.hootyController.reactToBotResponse(botResponse);
+        });
+      }
+    }, 5000);
+  }
+  
+  // Add debug button to test animations
+  const animDebugDiv = document.createElement('div');
+  animDebugDiv.style.position = 'fixed';
+  animDebugDiv.style.bottom = '80px';
+  animDebugDiv.style.left = '10px';
+  animDebugDiv.style.zIndex = '9999';
+  animDebugDiv.style.background = 'rgba(0,0,0,0.7)';
+  animDebugDiv.style.padding = '10px';
+  animDebugDiv.style.borderRadius = '5px';
+  document.body.appendChild(animDebugDiv);
+  
+  // Add test buttons for each animation
+  const animations = ['idle', 'dance', 'wave', 'jump', 'cheer', 'pitch'];
+  animations.forEach(anim => {
+    const btn = document.createElement('button');
+    btn.textContent = `Test ${anim}`;
+    btn.style.margin = '5px';
+    btn.style.padding = '5px 10px';
+    btn.addEventListener('click', () => {
+      if (window.hootyController) {
+        window.hootyController.playAnimation(anim);
+      }
+    });
+    animDebugDiv.appendChild(btn);
+  });
+});
+
+// Fix potential duplicate model issue
+// Remove duplicate model reference if it exists
+document.addEventListener('DOMContentLoaded', function() {
+  const assetItems = document.querySelectorAll('a-asset-item#hooty-model');
+  if (assetItems.length > 1) {
+    console.warn('Found duplicate model references. Removing extras.');
+    for (let i = 1; i < assetItems.length; i++) {
+      assetItems[i].remove();
+    }
+  }
+});
+
+// Add a console output to confirm script is loaded
+console.log('Hooty animation enhancement script loaded!');
