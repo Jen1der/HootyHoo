@@ -19,7 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Enhanced HootyController for specific .glb animations
+  // Make Hooty visible by default in non-AR mode
+  arContent.setAttribute('visible', true);
+  
+  // Enhanced HootyController for animations
   class HootyController {
     constructor(modelEntity) {
       this.modelEntity = modelEntity;
@@ -44,6 +47,9 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Initialize with idle animation
       this.playAnimation('idle');
+      
+      // Make controller available globally
+      window.hootyController = this;
     }
     
     // Check message for animation triggers
@@ -82,6 +88,8 @@ document.addEventListener('DOMContentLoaded', function() {
       this.currentAnimation = animationName;
       
       try {
+        // For animations, we'll try both approaches:
+        // 1. Setting animation-mixer with clip name
         this.modelEntity.setAttribute('animation-mixer', {
           clip: animationName,
           loop: this.animations[animationName].loop ? 'repeat' : 'once',
@@ -136,15 +144,18 @@ document.addEventListener('DOMContentLoaded', function() {
       try {
         const mixer = hootModel.components['animation-mixer'].mixer;
         if (mixer) {
-          console.log('Available animations:', 
-            Object.keys(mixer._clips).map(name => name));
+          const availableClips = Object.keys(mixer._clips);
+          console.log('Available animations:', availableClips);
+          
+          // Set up animation test buttons if they exist
+          setupAnimationButtons(availableClips);
         }
       } catch (err) {
         console.warn("Couldn't access animation clips:", err);
       }
       
       // Initialize the controller after model loads
-      window.hootyController = new HootyController(hootModel);
+      new HootyController(hootModel);
     });
     
     hootModel.addEventListener('model-error', (error) => {
@@ -152,6 +163,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   } else {
     console.error('❌ Could not find #hooty element');
+  }
+  
+  // Function to set up animation buttons with actual clip names
+  function setupAnimationButtons(clipNames) {
+    const animButtons = document.querySelectorAll('.anim-button');
+    if (animButtons.length === 0) return;
+    
+    // Update each animation button to use actual clip names if available
+    animButtons.forEach(button => {
+      const animType = button.getAttribute('data-anim');
+      button.addEventListener('click', () => {
+        console.log(`Animation button clicked: ${animType}`);
+        if (window.hootyController) {
+          window.hootyController.playAnimation(animType);
+        } else {
+          console.warn("Hooty controller not initialized");
+        }
+      });
+    });
   }
 
   // Initialize Botpress
@@ -248,33 +278,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Make sure the model is visible
     arContent.setAttribute('visible', true);
-  });
-  
-  // Add debug button to show model without AR
-  const debugButton = document.createElement('button');
-  debugButton.innerHTML = 'Show Model';
-  debugButton.style.position = 'fixed';
-  debugButton.style.top = '10px';
-  debugButton.style.right = '10px';
-  debugButton.style.zIndex = 1001;
-  debugButton.style.padding = '8px 16px';
-  debugButton.style.backgroundColor = '#ffc53d';
-  debugButton.style.border = 'none';
-  debugButton.style.borderRadius = '4px';
-  document.body.appendChild(debugButton);
-
-  debugButton.addEventListener('click', function() {
-    console.log("Debug button clicked - showing model");
-    arContent.setAttribute('visible', true);
-    hootModel.setAttribute('position', '0 -0.5 -2');
-    
-    // Test animation if controller exists
-    if (window.hootyController) {
-      window.hootyController.playAnimation('dance');
-      setTimeout(() => {
-        window.hootyController.playAnimation('idle');
-      }, 5000);
-    }
   });
   
   // Test if the model file exists
