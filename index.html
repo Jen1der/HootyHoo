@@ -126,12 +126,13 @@
   <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
     <!-- Hooty 3D model with animation mixer -->
     <a-entity id="ar-content" visible="true">
-      <a-gltf-model
+  <a-gltf-model
   id="hooty"
   src="models/Animation_Idle_02_withSkin.glb"
   position="0 -0.5 -2"
   scale="0.5 0.5 0.5"
-  rotation="0 0 0">
+  rotation="0 0 0"
+  animation-mixer="clip: Idle_02; loop: repeat;">
 </a-gltf-model>
     </a-entity>
     
