@@ -6,13 +6,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const chatToggle = document.querySelector('#chat-toggle');
   const chatContainer = document.querySelector('#chat-container');
   
-  // Update the Hooty model reference to ensure proper default animation
+  // Update the Hooty model reference
   let hootModel = document.querySelector('#hooty');
   
   // Make sure the model has the correct initial source
   if (hootModel) {
     // Set the default idle animation
-    hootModel.setAttribute('src', 'models/Animation_Idle_02_withSkin.glb');
+    hootModel.setAttribute('src', 'models/Happy Idle.glb');
     
     // Set up animation mixer
     hootModel.setAttribute('animation-mixer', {
@@ -62,197 +62,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (animButtons.length === 0) return;
     
     // Update each animation button to trigger animations
-    animButtons.forEach(button => {
-      const animType = button.getAttribute('data-anim');
-      button.addEventListener('click', () => {
-        console.log(`Animation button clicked: ${animType}`);
-        if (window.hootyController) {
-          window.hootyController.playAnimation(animType);
-        } else {
-          console.warn("Hooty controller not initialized");
-        }
-      });
-    });
-  }
-
-  // Rest of your code including Botpress initialization and AR interactions...
-});
-const hooty = document.querySelector('#hooty');
-hooty.addEventListener('model-loaded', () => {
-  hooty.setAttribute('animation-mixer', 'clip: Idle_02; loop: repeat;');
-});
-
-  
- // Enhanced HootyController for animations using separate .glb files
-class HootyController {
-  constructor(modelEntity) {
-    this.modelEntity = modelEntity;
-    this.currentAnimation = 'idle';
-    this.animationQueue = [];
-    this.isAnimating = false;
-    
-    // Define animations with their corresponding .glb files
-    this.animations = {
-      'idle': { 
-        src: 'models/Animation_Idle_02_withSkin.glb',
-        duration: 0, 
-        loop: true 
-      },
-      'dance': { 
-        src: 'models/Animation_Indoor_Swing_withSkin.glb',  
-        duration: 5000, 
-        loop: false 
-      },
-      'wave': { 
-        src: 'models/Animation_Big_Wave_Hello_withSkin.glb',  
-        duration: 3000, 
-        loop: false 
-      },
-      'heart': { 
-        src: 'models/Animation_Big_Heart_Gesture_withSkin.glb',  
-        duration: 3500, 
-        loop: false 
-      }
-    };
-    
-    // Keywords that trigger animations
-    this.animationTriggers = {
-      'dance': ['dance', 'dancing', 'move'],
-      'wave': ['wave', 'hello', 'hi', 'hey', 'greet'],
-      'heart': ['heart', 'love', 'like']
-    };
-    
-    // Store original position, scale and rotation
-    this.originalPosition = this.modelEntity.getAttribute('position');
-    this.originalScale = this.modelEntity.getAttribute('scale');
-    this.originalRotation = this.modelEntity.getAttribute('rotation');
-    
-    // Initialize with idle animation
-    this.playAnimation('idle');
-    
-    // Make controller available globally
-    window.hootyController = this;
-  }
-  
-  // Check message for animation triggers
-  checkForAnimationTriggers(message) {
-    if (!message) return false;
-    
-    const lowercaseMsg = message.toLowerCase();
-    console.log("Checking for triggers in:", lowercaseMsg);
-    
-    for (const [animation, triggers] of Object.entries(this.animationTriggers)) {
-      if (triggers.some(trigger => lowercaseMsg.includes(trigger))) {
-        console.log(`Found trigger for ${animation}`);
-        this.playAnimation(animation);
-        return true;
-      }
-    }
-    return false;
-  }
-  
-  // Play an animation by loading the corresponding .glb file
-  playAnimation(Animation_Idle_02_withSkin.glb) {
-    if (!this.animations[models/Animation_Idle_02_withSkin.glb]) {
-      console.warn(`Animation "${Animation_Idle_02_withSkin.glb}" not found!`);
-      return;
-    }
-    
-    console.log(`Playing animation: ${animationName}`);
-    
-    // Add to queue if already animating
-    if (this.isAnimating && animationName !== 'idle') {
-      this.animationQueue.push(animationName);
-      return;
-    }
-    
-    // Set current animation
-    this.currentAnimation = models/Animation_Idle_02_withSkin.glb;
-    
-    try {
-      // Load the new model file
-      const modelSrc = this.animations[models/Animation_Gangnam_Groove_withSkin.glb].src;
-      this.modelEntity.setAttribute('src', modelSrc);
-      
-      // Apply any animation-mixer properties if needed
-      // (for handling animation clips within the .glb if any)
-      this.modelEntity.setAttribute('animation-mixer', {
-        loop: this.animations[models/Animation_Stand_and_Chat_withSkin.glb].loop ? 'repeat' : 'once',
-        timeScale: 1
-      });
-      
-      // Make sure position, scale and rotation are preserved
-      this.modelEntity.setAttribute('position', this.originalPosition);
-      this.modelEntity.setAttribute('scale', this.originalScale);
-      this.modelEntity.setAttribute('rotation', this.originalRotation);
-      
-        // Return to idle after animation completes
-        setTimeout(() => {
-          this./models/Animation_Idle_02_withSkin.glb = true;
-          
-          // Play next animation in queue if exists
-          if (this.animationQueue.length > 0) {
-            const models/Animation_Stand_and_Chat_withSkin.glb = this.animationQueue.shift();
-            this.playAnimation(nextAnimation);
-          } else {
-            // Return to idle
-            this.playAnimation('idle');
-          }
-        }, this.animations[Animation_Idle_02_withSkin.glb].duration);
-      }
-    } catch (err) {
-      console.error("Error setting animation:", err);
-    }
-  }
-  
-  // React to user message
-  reactToMessage(message) {
-    return this.checkForAnimationTriggers(message);
-  }
-  
-  // React to bot response
-  reactToBotResponse(response) {
-    return this.checkForAnimationTriggers(response);
-  }
-}
-
-  // Set up model loading and error handlers
-  if (hootModel) {
-    // Debug info about the model loading
-    hootModel.addEventListener('model-loaded', (event) => {
-      console.log('✅ Hooty model loaded successfully!');
-      
-      // Check for animation clips
-      try {
-        const mixer = hootModel.components['animation-mixer'].mixer;
-        if (mixer) {
-          const availableClips = Object.keys(mixer._clips);
-          console.log('Available animations:', availableClips);
-          
-          // Set up animation test buttons if they exist
-          setupAnimationButtons(availableClips);
-        }
-      } catch (err) {
-        console.warn("Couldn't access animation clips:", err);
-      }
-      
-      // Initialize the controller after model loads
-      new HootyController(hootModel);
-    });
-    
-    hootModel.addEventListener('model-error', (error) => {
-      console.error('❌ Error loading Hooty model:', error.detail);
-    });
-  } else {
-    console.error('❌ Could not find #hooty element');
-  }
-  
-  // Function to set up animation buttons with actual clip names
-  function setupAnimationButtons(clipNames) {
-    const animButtons = document.querySelectorAll('.anim-button');
-    if (animButtons.length === 0) return;
-    
-    // Update each animation button to use actual clip names if available
     animButtons.forEach(button => {
       const animType = button.getAttribute('data-anim');
       button.addEventListener('click', () => {
@@ -362,16 +171,219 @@ class HootyController {
     arContent.setAttribute('visible', true);
   });
   
-  // Test if the model file exists
-  fetch('models/Animation_Idle_02_withSkin.glb')
-    .then(response => {
-      if (response.ok) {
-        console.log('✅ Model file exists!');
-      } else {
-        console.error('❌ Model file not found! Status:', response.status);
-      }
-    })
-    .catch(err => {
-      console.error('❌ Error checking model:', err);
-    });
+  // Test if model files exist
+  const modelFiles = [
+    'models/Baseball Milling Idle.glb',
+    'models/Baseball Pitching.glb',
+    'models/Baseball Strike.glb',
+    'models/Baseball Umpire.glb',
+    'models/Gangnam Style.glb',
+    'models/Happy Idle.glb',
+    'models/Northern Soul Spin Combo.glb',
+    'models/Owl_Mascot_0409005910_texture.glb',
+    'models/Salsa Dancing.glb',
+    'models/Shuffling.glb',
+    'models/Wave Hip Hop Dance.glb'
+  ];
+  
+  modelFiles.forEach(file => {
+    fetch(file)
+      .then(response => {
+        if (response.ok) {
+          console.log(`✅ Model file exists: ${file}`);
+        } else {
+          console.error(`❌ Model file not found: ${file}. Status: ${response.status}`);
+        }
+      })
+      .catch(err => {
+        console.error(`❌ Error checking model ${file}:`, err);
+      });
+  });
 });
+
+// Enhanced HootyController for animations using separate .glb files
+class HootyController {
+  constructor(modelEntity) {
+    this.modelEntity = modelEntity;
+    this.currentAnimation = 'idle';
+    this.animationQueue = [];
+    this.isAnimating = false;
+    
+    // Define animations with their corresponding .glb files
+    this.animations = {
+      'idle': { 
+        src: 'models/Happy Idle.glb',
+        duration: 0, 
+        loop: true 
+      },
+      'baseball-idle': { 
+        src: 'models/Baseball Milling Idle.glb',
+        duration: 5000, 
+        loop: true 
+      },
+      'baseball-pitch': { 
+        src: 'models/Baseball Pitching.glb',  
+        duration: 3500, 
+        loop: false 
+      },
+      'baseball-strike': { 
+        src: 'models/Baseball Strike.glb',  
+        duration: 3000, 
+        loop: false 
+      },
+      'baseball-umpire': { 
+        src: 'models/Baseball Umpire.glb',  
+        duration: 3000, 
+        loop: false 
+      },
+      'gangnam': { 
+        src: 'models/Gangnam Style.glb',  
+        duration: 6000, 
+        loop: false 
+      },
+      'soul-spin': { 
+        src: 'models/Northern Soul Spin Combo.glb',  
+        duration: 5000, 
+        loop: false 
+      },
+      'salsa': { 
+        src: 'models/Salsa Dancing.glb',  
+        duration: 5000, 
+        loop: false 
+      },
+      'shuffle': { 
+        src: 'models/Shuffling.glb',  
+        duration: 5000, 
+        loop: false 
+      },
+      'hip-hop': { 
+        src: 'models/Wave Hip Hop Dance.glb',  
+        duration: 5000, 
+        loop: false 
+      },
+      'wave': { 
+        src: 'models/Wave Hip Hop Dance.glb',  
+        duration: 5000, 
+        loop: false 
+      },
+      'dance': { 
+        src: 'models/Gangnam Style.glb',  
+        duration: 6000, 
+        loop: false 
+      },
+      'heart': { 
+        src: 'models/Salsa Dancing.glb',  
+        duration: 5000, 
+        loop: false 
+      }
+    };
+    
+    // Keywords that trigger animations
+    this.animationTriggers = {
+      'dance': ['dance', 'dancing', 'move'],
+      'wave': ['wave', 'hello', 'hi', 'hey', 'greet'],
+      'heart': ['heart', 'love', 'like'],
+      'gangnam': ['gangnam', 'style', 'k-pop', 'kpop'],
+      'salsa': ['salsa', 'latin', 'dance'],
+      'shuffle': ['shuffle', 'shuffling'],
+      'baseball-pitch': ['pitch', 'throw', 'baseball', 'ball'],
+      'baseball-strike': ['strike', 'hit', 'swing'],
+      'baseball-umpire': ['umpire', 'out', 'safe'],
+      'hip-hop': ['hip hop', 'hip-hop', 'rap'],
+      'soul-spin': ['spin', 'twirl', 'soul']
+    };
+    
+    // Store original position, scale and rotation
+    this.originalPosition = this.modelEntity.getAttribute('position');
+    this.originalScale = this.modelEntity.getAttribute('scale');
+    this.originalRotation = this.modelEntity.getAttribute('rotation');
+    
+    // Initialize with idle animation
+    this.playAnimation('idle');
+    
+    // Make controller available globally
+    window.hootyController = this;
+  }
+  
+  // Check message for animation triggers
+  checkForAnimationTriggers(message) {
+    if (!message) return false;
+    
+    const lowercaseMsg = message.toLowerCase();
+    console.log("Checking for triggers in:", lowercaseMsg);
+    
+    for (const [animation, triggers] of Object.entries(this.animationTriggers)) {
+      if (triggers.some(trigger => lowercaseMsg.includes(trigger))) {
+        console.log(`Found trigger for ${animation}`);
+        this.playAnimation(animation);
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  // Play an animation by loading the corresponding .glb file
+  playAnimation(animationName) {
+    if (!this.animations[animationName]) {
+      console.warn(`Animation "${animationName}" not found!`);
+      return;
+    }
+    
+    console.log(`Playing animation: ${animationName}`);
+    
+    // Add to queue if already animating
+    if (this.isAnimating && animationName !== 'idle') {
+      this.animationQueue.push(animationName);
+      return;
+    }
+    
+    // Set current animation
+    this.currentAnimation = animationName;
+    this.isAnimating = animationName !== 'idle';
+    
+    try {
+      // Load the new model file
+      const modelSrc = this.animations[animationName].src;
+      this.modelEntity.setAttribute('src', modelSrc);
+      
+      // Apply any animation-mixer properties if needed
+      this.modelEntity.setAttribute('animation-mixer', {
+        loop: this.animations[animationName].loop ? 'repeat' : 'once',
+        timeScale: 1
+      });
+      
+      // Make sure position, scale and rotation are preserved
+      this.modelEntity.setAttribute('position', this.originalPosition);
+      this.modelEntity.setAttribute('scale', this.originalScale);
+      this.modelEntity.setAttribute('rotation', this.originalRotation);
+      
+      // If this is not a looping animation, schedule return to idle
+      if (!this.animations[animationName].loop) {
+        setTimeout(() => {
+          this.isAnimating = false;
+          
+          // Play next animation in queue if exists
+          if (this.animationQueue.length > 0) {
+            const nextAnimation = this.animationQueue.shift();
+            this.playAnimation(nextAnimation);
+          } else {
+            // Return to idle
+            this.playAnimation('idle');
+          }
+        }, this.animations[animationName].duration);
+      }
+    } catch (err) {
+      console.error("Error setting animation:", err);
+    }
+  }
+  
+  // React to user message
+  reactToMessage(message) {
+    return this.checkForAnimationTriggers(message);
+  }
+  
+  // React to bot response
+  reactToBotResponse(response) {
+    return this.checkForAnimationTriggers(response);
+  }
+}
