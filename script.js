@@ -147,9 +147,9 @@ class HootyController {
   }
   
   // Play an animation by loading the corresponding .glb file
-  playAnimation(animationName) {
-    if (!this.animations[animationName]) {
-      console.warn(`Animation "${animationName}" not found!`);
+  playAnimation(Animation_Idle_02_withSkin.glb) {
+    if (!this.animations[models/Animation_Idle_02_withSkin.glb]) {
+      console.warn(`Animation "${Animation_Idle_02_withSkin.glb}" not found!`);
       return;
     }
     
@@ -162,17 +162,17 @@ class HootyController {
     }
     
     // Set current animation
-    this.currentAnimation = animationName;
+    this.currentAnimation = models/Animation_Idle_02_withSkin.glb;
     
     try {
       // Load the new model file
-      const modelSrc = this.animations[animationName].src;
+      const modelSrc = this.animations[models/Animation_Gangnam_Groove_withSkin.glb].src;
       this.modelEntity.setAttribute('src', modelSrc);
       
       // Apply any animation-mixer properties if needed
       // (for handling animation clips within the .glb if any)
       this.modelEntity.setAttribute('animation-mixer', {
-        loop: this.animations[animationName].loop ? 'repeat' : 'once',
+        loop: this.animations[models/Animation_Stand_and_Chat_withSkin.glb].loop ? 'repeat' : 'once',
         timeScale: 1
       });
       
@@ -181,23 +181,19 @@ class HootyController {
       this.modelEntity.setAttribute('scale', this.originalScale);
       this.modelEntity.setAttribute('rotation', this.originalRotation);
       
-      // Handle non-looping animations
-      if (!this.animations[animationName].loop) {
-        this.isAnimating = true;
-        
         // Return to idle after animation completes
         setTimeout(() => {
-          this.isAnimating = false;
+          this./models/Animation_Idle_02_withSkin.glb = true;
           
           // Play next animation in queue if exists
           if (this.animationQueue.length > 0) {
-            const nextAnimation = this.animationQueue.shift();
+            const models/Animation_Stand_and_Chat_withSkin.glb = this.animationQueue.shift();
             this.playAnimation(nextAnimation);
           } else {
             // Return to idle
             this.playAnimation('idle');
           }
-        }, this.animations[animationName].duration);
+        }, this.animations[Animation_Idle_02_withSkin.glb].duration);
       }
     } catch (err) {
       console.error("Error setting animation:", err);
