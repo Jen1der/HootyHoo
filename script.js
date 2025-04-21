@@ -1,3 +1,5 @@
+// Enhanced version of your script.js with better debugging and animation handling
+
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
   // Get references to key elements
@@ -5,6 +7,36 @@ document.addEventListener('DOMContentLoaded', function() {
   const arContent = document.querySelector('#ar-content');
   const chatToggle = document.querySelector('#chat-toggle');
   const chatContainer = document.querySelector('#chat-container');
+  const debugPanel = document.querySelector('#debug-panel');
+  
+  // Debug function that ensures messages appear in the debug panel
+  function debug(message, type = 'log') {
+    const colors = {
+      log: '#ffffff',
+      warn: '#ffaa00',
+      error: '#ff5555',
+      success: '#55ff55'
+    };
+    
+    const prefix = {
+      log: '📝',
+      warn: '⚠️',
+      error: '❌',
+      success: '✅'
+    };
+    
+    // Log to console
+    console[type](message);
+    
+    // Add to debug panel if it exists
+    if (debugPanel) {
+      const logLine = document.createElement('div');
+      logLine.textContent = `${prefix[type]} ${message}`;
+      logLine.style.color = colors[type];
+      debugPanel.appendChild(logLine);
+      debugPanel.scrollTop = debugPanel.scrollHeight;
+    }
+  }
   
   // Update the Hooty model reference
   let hootModel = document.querySelector('#hooty');
@@ -26,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Set up model loading and error handlers
   if (hootModel) {
-    console.log('Setting up model with Happy Idle.glb');
+    debug('Setting up model with Happy Idle.glb', 'log');
     // Set the default idle animation
     hootModel.setAttribute('src', 'models/Happy Idle.glb');
     
@@ -37,43 +69,64 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Debug info about the model loading
     hootModel.addEventListener('model-loaded', (event) => {
-      console.log('✅ Hooty model loaded successfully!');
+      debug('Hooty model loaded successfully!', 'success');
+      
+      // Check if the model has animations
+      const mesh = hootModel.getObject3D('mesh');
+      if (mesh && mesh.animations) {
+        debug(`Model has ${mesh.animations.length} animation(s)`, 'success');
+        
+        // Log animation names if available
+        mesh.animations.forEach((anim, index) => {
+          debug(`Animation ${index}: ${anim.name}`, 'log');
+        });
+      } else {
+        debug('Model has no animations in current state', 'warn');
+      }
       
       // Initialize the controller after model loads
-      window.hootyController = new HootyController(hootModel);
+      window.hootyController = new HootyController(hootModel, debug);
       
       // Set up animation test buttons
       setupAnimationButtons();
     });
     
     hootModel.addEventListener('model-error', (error) => {
-      console.error('❌ Error loading Hooty model:', error.detail);
+      debug(`Error loading Hooty model: ${error.detail}`, 'error');
     });
   } else {
-    console.error('❌ Could not find #hooty element');
+    debug('Could not find #hooty element', 'error');
   }
   
   // Function to set up animation buttons
   function setupAnimationButtons() {
     const animButtons = document.querySelectorAll('.anim-button');
     if (animButtons.length === 0) {
-      console.warn('No animation buttons found');
+      debug('No animation buttons found', 'warn');
       return;
     }
     
-    console.log(`Found ${animButtons.length} animation buttons`);
+    debug(`Found ${animButtons.length} animation buttons`, 'success');
     
     // Update each animation button to trigger animations
     animButtons.forEach(button => {
       const animType = button.getAttribute('data-anim');
-      console.log(`Setting up button for animation: ${animType}`);
+      debug(`Setting up button for animation: ${animType}`, 'log');
       
       button.addEventListener('click', () => {
-        console.log(`Animation button clicked: ${animType}`);
+        debug(`Animation button clicked: ${animType}`, 'success');
         if (window.hootyController) {
+          debug(`Triggering animation: ${animType}`, 'log');
           window.hootyController.playAnimation(animType);
         } else {
-          console.warn("Hooty controller not initialized");
+          debug("Hooty controller not initialized", 'error');
+          
+          // Fallback initialization if controller doesn't exist
+          if (hootModel) {
+            debug("Creating fallback controller", 'warn');
+            window.hootyController = new HootyController(hootModel, debug);
+            window.hootyController.playAnimation(animType);
+          }
         }
       });
     });
@@ -84,14 +137,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.botpress) {
       // Set up event listeners
       window.botpress.on("webchat:ready", () => {
-        console.log("Webchat is ready!");
+        debug("Webchat is ready!", 'success');
         window.botpress.open();
       });
       
       // Listen for user messages to trigger animations
       window.botpress.on("webchat:message:sent", (event) => {
         const userMessage = event.message?.text || "";
-        console.log("User message sent:", userMessage);
+        debug("User message sent: " + userMessage, 'log');
         
         if (window.hootyController) {
           window.hootyController.reactToMessage(userMessage);
@@ -101,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Listen for bot responses to trigger animations
       window.botpress.on("webchat:message:received", (event) => {
         const botResponse = event.message?.text || "";
-        console.log("Bot message received:", botResponse);
+        debug("Bot message received: " + botResponse, 'log');
         
         if (window.hootyController) {
           window.hootyController.reactToBotResponse(botResponse);
@@ -139,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "selector": "#webchat"
       });
     } else {
-      console.error("Botpress not loaded!");
+      debug("Botpress not loaded!", 'error');
       setTimeout(initBotpress, 1000); // Retry after 1 second
     }
   }
@@ -151,15 +204,16 @@ document.addEventListener('DOMContentLoaded', function() {
   scene.addEventListener('enter-vr', function() {
     // Make content visible when AR starts
     arContent.setAttribute('visible', true);
+    debug('Entered AR/VR mode', 'success');
   });
   
   // Tap to place model
   scene.addEventListener('click', function(evt) {
-    console.log("Scene clicked");
+    debug("Scene clicked", 'log');
     
     // Try to place in AR if possible
     if (scene.is('ar-mode')) {
-      console.log("AR mode is active");
+      debug("AR mode is active", 'success');
       // Check if we have an intersection point
       if (evt.detail.intersection) {
         const point = evt.detail.intersection.point;
@@ -168,6 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
           y: point.y,
           z: point.z
         });
+        debug(`Placed model at position: x=${point.x.toFixed(2)}, y=${point.y.toFixed(2)}, z=${point.z.toFixed(2)}`, 'success');
       } else {
         // Fallback placement
         hootModel.setAttribute('position', {
@@ -175,6 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
           y: -0.5,
           z: -1.5
         });
+        debug('Used fallback position (no intersection)', 'warn');
       }
     } else {
       // Place in front of camera in non-AR mode
@@ -183,6 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
         y: -0.5,
         z: -1.5
       });
+      debug('Placed model in front of camera (non-AR)', 'log');
     }
     
     // Make sure the model is visible
@@ -208,26 +265,28 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch(file)
       .then(response => {
         if (response.ok) {
-          console.log(`✅ Model file exists: ${file}`);
+          debug(`Model file exists: ${file}`, 'success');
         } else {
-          console.error(`❌ Model file not found: ${file}. Status: ${response.status}`);
+          debug(`Model file not found: ${file}. Status: ${response.status}`, 'error');
         }
       })
       .catch(err => {
-        console.error(`❌ Error checking model ${file}:`, err);
+        debug(`Error checking model ${file}: ${err.message}`, 'error');
       });
   });
 });
 
 // Enhanced HootyController for animations using separate .glb files
 class HootyController {
-  constructor(modelEntity) {
+  constructor(modelEntity, debugFn = console.log) {
     this.modelEntity = modelEntity;
+    this.debug = debugFn;
     this.currentAnimation = 'idle';
     this.animationQueue = [];
     this.isAnimating = false;
+    this.loadingModel = false;
     
-    console.log("HootyController initialized");
+    this.debug("HootyController initialized", 'success');
     
     // Define animations with their corresponding .glb files
     this.animations = {
@@ -318,9 +377,28 @@ class HootyController {
     this.originalScale = this.modelEntity.getAttribute('scale');
     this.originalRotation = this.modelEntity.getAttribute('rotation');
     
-    console.log("Setting initial idle animation");
+    this.debug("Setting initial idle animation", 'log');
     // Initialize with idle animation
     this.playAnimation('idle');
+    
+    // Set up model-loaded event listener to detect when models change
+    this.modelEntity.addEventListener('model-loaded', () => {
+      this.debug("Model loaded event triggered", 'success');
+      this.loadingModel = false;
+      
+      // Check loaded model for animations
+      const mesh = this.modelEntity.getObject3D('mesh');
+      if (mesh && mesh.animations) {
+        this.debug(`Loaded model has ${mesh.animations.length} animation(s)`, 'success');
+        
+        // Log animation names
+        mesh.animations.forEach((anim, index) => {
+          this.debug(`Animation ${index}: ${anim.name}`, 'log');
+        });
+      } else {
+        this.debug('Loaded model has no animations', 'warn');
+      }
+    });
   }
   
   // Check message for animation triggers
@@ -328,11 +406,11 @@ class HootyController {
     if (!message) return false;
     
     const lowercaseMsg = message.toLowerCase();
-    console.log("Checking for triggers in:", lowercaseMsg);
+    this.debug("Checking for triggers in: " + lowercaseMsg, 'log');
     
     for (const [animation, triggers] of Object.entries(this.animationTriggers)) {
       if (triggers.some(trigger => lowercaseMsg.includes(trigger))) {
-        console.log(`Found trigger for ${animation}`);
+        this.debug(`Found trigger for ${animation}`, 'success');
         this.playAnimation(animation);
         return true;
       }
@@ -342,18 +420,25 @@ class HootyController {
   
   // Play an animation by loading the corresponding .glb file
   playAnimation(animationName) {
-    console.log(`Attempting to play animation: ${animationName}`);
+    this.debug(`Attempting to play animation: ${animationName}`, 'log');
     
     if (!this.animations[animationName]) {
-      console.warn(`Animation "${animationName}" not found!`);
+      this.debug(`Animation "${animationName}" not found!`, 'error');
       return;
     }
     
-    console.log(`Playing animation: ${animationName}`);
+    this.debug(`Playing animation: ${animationName}`, 'success');
+    
+    // If we're currently loading a model, queue this animation
+    if (this.loadingModel) {
+      this.debug(`Currently loading a model, adding ${animationName} to queue`, 'warn');
+      this.animationQueue.push(animationName);
+      return;
+    }
     
     // Add to queue if already animating
     if (this.isAnimating && animationName !== 'idle') {
-      console.log(`Currently animating, adding ${animationName} to queue`);
+      this.debug(`Currently animating, adding ${animationName} to queue`, 'log');
       this.animationQueue.push(animationName);
       return;
     }
@@ -361,52 +446,73 @@ class HootyController {
     // Set current animation
     this.currentAnimation = animationName;
     this.isAnimating = animationName !== 'idle';
+    this.loadingModel = true;
     
     try {
       // Load the new model file
       const modelSrc = this.animations[animationName].src;
-      console.log(`Setting model source to: ${modelSrc}`);
-      this.modelEntity.setAttribute('src', modelSrc);
+      this.debug(`Setting model source to: ${modelSrc}`, 'log');
       
-      // Apply animation mixer properties
-      if (this.animations[animationName].loop) {
-        console.log('Setting looping animation');
-        this.modelEntity.setAttribute('animation-mixer', {
-          loop: 'repeat'
-        });
-      } else {
-        console.log('Setting non-looping animation');
-        this.modelEntity.setAttribute('animation-mixer', {
-          loop: 'once'
-        });
-      }
+      // Force reload by temporarily clearing the src
+      this.modelEntity.setAttribute('src', '');
       
-      // Make sure position, scale and rotation are preserved
-      this.modelEntity.setAttribute('position', this.originalPosition);
-      this.modelEntity.setAttribute('scale', this.originalScale);
-      this.modelEntity.setAttribute('rotation', this.originalRotation);
+      // Store current position, scale and rotation
+      const currentPosition = this.modelEntity.getAttribute('position');
+      const currentScale = this.modelEntity.getAttribute('scale');
+      const currentRotation = this.modelEntity.getAttribute('rotation');
       
-      // If this is not a looping animation, schedule return to idle
-      if (!this.animations[animationName].loop) {
-        console.log(`Scheduling return to idle after ${this.animations[animationName].duration}ms`);
+      // Wait a small amount of time before setting the new source
+      setTimeout(() => {
+        // Set the new source
+        this.modelEntity.setAttribute('src', modelSrc);
+        
+        // Wait for the model to load
         setTimeout(() => {
-          console.log('Animation complete, returning to idle or next queued animation');
-          this.isAnimating = false;
-          
-          // Play next animation in queue if exists
-          if (this.animationQueue.length > 0) {
-            const nextAnimation = this.animationQueue.shift();
-            console.log(`Playing next queued animation: ${nextAnimation}`);
-            this.playAnimation(nextAnimation);
+          // Apply animation mixer properties
+          if (this.animations[animationName].loop) {
+            this.debug('Setting looping animation', 'log');
+            this.modelEntity.setAttribute('animation-mixer', {
+              loop: 'repeat'
+            });
           } else {
-            // Return to idle
-            console.log('No more animations in queue, returning to idle');
-            this.playAnimation('idle');
+            this.debug('Setting non-looping animation', 'log');
+            this.modelEntity.setAttribute('animation-mixer', {
+              loop: 'once',
+              clampWhenFinished: true
+            });
           }
-        }, this.animations[animationName].duration);
-      }
+          
+          // Make sure position, scale and rotation are preserved
+          this.modelEntity.setAttribute('position', currentPosition);
+          this.modelEntity.setAttribute('scale', currentScale);
+          this.modelEntity.setAttribute('rotation', currentRotation);
+          
+          this.loadingModel = false;
+          
+          // If this is not a looping animation, schedule return to idle
+          if (!this.animations[animationName].loop) {
+            this.debug(`Scheduling return to idle after ${this.animations[animationName].duration}ms`, 'log');
+            setTimeout(() => {
+              this.debug('Animation complete, returning to idle or next queued animation', 'success');
+              this.isAnimating = false;
+              
+              // Play next animation in queue if exists
+              if (this.animationQueue.length > 0) {
+                const nextAnimation = this.animationQueue.shift();
+                this.debug(`Playing next queued animation: ${nextAnimation}`, 'log');
+                this.playAnimation(nextAnimation);
+              } else {
+                // Return to idle
+                this.debug('No more animations in queue, returning to idle', 'log');
+                this.playAnimation('idle');
+              }
+            }, this.animations[animationName].duration);
+          }
+        }, 500); // Wait 500ms for model to fully load
+      }, 100);
     } catch (err) {
-      console.error("Error setting animation:", err);
+      this.debug(`Error setting animation: ${err.message}`, 'error');
+      this.loadingModel = false;
     }
   }
   
