@@ -82,8 +82,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize Botpress
   function initBotpress() {
     if (window.botpress) {
+      // Set up event listeners
       window.botpress.on("webchat:ready", () => {
         console.log("Webchat is ready!");
+        window.botpress.open();
       });
       
       // Listen for user messages to trigger animations
@@ -106,22 +108,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
       
-      // Initialize the webchat
+      // Initialize the webchat with updated configuration
       window.botpress.init({
         "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
-        "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
-        "hostUrl": "https://cdn.botpress.cloud/webchat/v2",
-        "messagingUrl": "https://messaging.botpress.cloud",
-        "webhookId": "44c58e23-012d-4aa6-9617-abb818a66b42",
         "configuration": {
-          "composerPlaceholder": "Talk to Hooty...",
+          "composerPlaceholder": "Let's go, Hoots!",
           "botName": "iHooty",
+          "botAvatar": "",
+          "website": {
+            "title": "https://ofallonhoots.com/",
+            "link": "https://ofallonhoots.com/"
+          },
+          "email": {
+            "title": "Ofallonhoots@prospectleague.com",
+            "link": "Ofallonhoots@prospectleague.com"
+          },
+          "phone": {
+            "title": "6367414668",
+            "link": "6367414668"
+          },
+          "termsOfService": {},
+          "privacyPolicy": {},
           "color": "#ffc53d",
           "variant": "solid",
           "themeMode": "light",
-          "enableCookie": false,
-          "externalAuthEnabled": false
+          "fontFamily": "ibm",
+          "radius": 1
         },
+        "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
         "selector": "#webchat"
       });
     } else {
