@@ -1,48 +1,168 @@
+/* Import Bebas Neue font */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
 /* General Page Styling */
 body {
-    font-family: 'Bebas Neue', sans-serif;
-    background-color: #5D6770; 
-    color: #FFFFFF;
-    text-align: center;
-    margin: 0;
-    padding: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  background-color: #5D6770; 
+  color: #FFFFFF;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 /* Chatbot Container */
 #webchat {
-    width: 400px;
-    height: 600px;
-    max-width: 100%;
-    margin: 20px auto;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    background: white;
-}  /* This closing bracket was missing */
+  width: 400px;
+  height: 600px;
+  max-width: 100%;
+  margin: 20px auto;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  background: white;
+}
 
 /* Customize Chatbot Appearance */
 #webchat .bpWebchat {
-    position: unset;
-    width: 100%;
-    height: 100%;
-    max-height: 100%;
-    max-width: 100%;
+  position: unset;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  max-width: 100%;
 }
 
 /* Hide Floating Chat Button */
 #webchat .bpFab {
-    display: none;
+  display: none;
 }
 
 /* Header Styling */
 h1 {
-    font-size: 2rem;
-    color: #FFD100; 
-    margin-top: 20px;
+  font-size: 2rem;
+  color: #FFD100; 
+  margin-top: 20px;
 }
 
 /* Footer */
 footer {
-    margin-top: 20px;
-    font-size: 0.9rem;
-    color: #666;
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* AR Experience UI */
+
+/* Chat interface that overlays the AR scene */
+#chat-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 300px;
+  height: 400px;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Toggle button to show/hide chat */
+#chat-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 330px;
+  z-index: 1001;
+  background-color: #ffc53d;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.instructions {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  max-width: 300px;
+  z-index: 1000;
+}
+
+#animation-controls {
+  position: fixed;
+  bottom: 80px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 999;
+  text-align: center;
+}
+
+.anim-button {
+  margin: 5px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 20px;
+  background-color: #ffc53d;
+  color: #333;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.anim-button:hover {
+  background-color: #ffb300;
+  transform: scale(1.05);
+}
+
+.anim-button:active {
+  transform: scale(0.95);
+}
+
+/* Debug panel to show logs */
+#debug-panel {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  width: 300px;
+  height: 200px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #00ff00;
+  font-family: monospace;
+  font-size: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  overflow-y: scroll;
+  z-index: 1002;
+  display: none;
+}
+
+#debug-toggle {
+  position: fixed;
+  top: 10px;
+  right: 320px;
+  z-index: 1003;
+  background-color: #444;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* Override nested chat container styles when in AR mode */
+#chat-container #webchat {
+  width: 100%;
+  height: 100%;
+  margin: 0;
 }
