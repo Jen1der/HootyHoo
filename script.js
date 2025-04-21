@@ -9,20 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Update the Hooty model reference
   let hootModel = document.querySelector('#hooty');
   
-  // Make sure the model has the correct initial source
-  if (hootModel) {
-    // Set the default idle animation
-    hootModel.setAttribute('src', 'models/Happy Idle.glb');
-    
-    // Set up animation mixer
-    hootModel.setAttribute('animation-mixer', {
-      clip: 'idle',
-      loop: 'repeat'
-    });
-  } else {
-    console.error('❌ Could not find #hooty element');
-  }
-  
   // Hide chat initially
   chatContainer.style.display = 'none';
   
@@ -40,6 +26,15 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Set up model loading and error handlers
   if (hootModel) {
+    console.log('Setting up model with Happy Idle.glb');
+    // Set the default idle animation
+    hootModel.setAttribute('src', 'models/Happy Idle.glb');
+    
+    // Set up animation mixer (use empty string for clip to let it use default)
+    hootModel.setAttribute('animation-mixer', {
+      loop: 'repeat'
+    });
+
     // Debug info about the model loading
     hootModel.addEventListener('model-loaded', (event) => {
       console.log('✅ Hooty model loaded successfully!');
@@ -54,16 +49,25 @@ document.addEventListener('DOMContentLoaded', function() {
     hootModel.addEventListener('model-error', (error) => {
       console.error('❌ Error loading Hooty model:', error.detail);
     });
+  } else {
+    console.error('❌ Could not find #hooty element');
   }
   
   // Function to set up animation buttons
   function setupAnimationButtons() {
     const animButtons = document.querySelectorAll('.anim-button');
-    if (animButtons.length === 0) return;
+    if (animButtons.length === 0) {
+      console.warn('No animation buttons found');
+      return;
+    }
+    
+    console.log(`Found ${animButtons.length} animation buttons`);
     
     // Update each animation button to trigger animations
     animButtons.forEach(button => {
       const animType = button.getAttribute('data-anim');
+      console.log(`Setting up button for animation: ${animType}`);
+      
       button.addEventListener('click', () => {
         console.log(`Animation button clicked: ${animType}`);
         if (window.hootyController) {
@@ -209,6 +213,8 @@ class HootyController {
     this.animationQueue = [];
     this.isAnimating = false;
     
+    console.log("HootyController initialized");
+    
     // Define animations with their corresponding .glb files
     this.animations = {
       'idle': { 
@@ -298,11 +304,9 @@ class HootyController {
     this.originalScale = this.modelEntity.getAttribute('scale');
     this.originalRotation = this.modelEntity.getAttribute('rotation');
     
+    console.log("Setting initial idle animation");
     // Initialize with idle animation
     this.playAnimation('idle');
-    
-    // Make controller available globally
-    window.hootyController = this;
   }
   
   // Check message for animation triggers
@@ -324,6 +328,8 @@ class HootyController {
   
   // Play an animation by loading the corresponding .glb file
   playAnimation(animationName) {
+    console.log(`Attempting to play animation: ${animationName}`);
+    
     if (!this.animations[animationName]) {
       console.warn(`Animation "${animationName}" not found!`);
       return;
@@ -333,6 +339,7 @@ class HootyController {
     
     // Add to queue if already animating
     if (this.isAnimating && animationName !== 'idle') {
+      console.log(`Currently animating, adding ${animationName} to queue`);
       this.animationQueue.push(animationName);
       return;
     }
@@ -344,13 +351,21 @@ class HootyController {
     try {
       // Load the new model file
       const modelSrc = this.animations[animationName].src;
+      console.log(`Setting model source to: ${modelSrc}`);
       this.modelEntity.setAttribute('src', modelSrc);
       
-      // Apply any animation-mixer properties if needed
-      this.modelEntity.setAttribute('animation-mixer', {
-        loop: this.animations[animationName].loop ? 'repeat' : 'once',
-        timeScale: 1
-      });
+      // Apply animation mixer properties
+      if (this.animations[animationName].loop) {
+        console.log('Setting looping animation');
+        this.modelEntity.setAttribute('animation-mixer', {
+          loop: 'repeat'
+        });
+      } else {
+        console.log('Setting non-looping animation');
+        this.modelEntity.setAttribute('animation-mixer', {
+          loop: 'once'
+        });
+      }
       
       // Make sure position, scale and rotation are preserved
       this.modelEntity.setAttribute('position', this.originalPosition);
@@ -359,15 +374,19 @@ class HootyController {
       
       // If this is not a looping animation, schedule return to idle
       if (!this.animations[animationName].loop) {
+        console.log(`Scheduling return to idle after ${this.animations[animationName].duration}ms`);
         setTimeout(() => {
+          console.log('Animation complete, returning to idle or next queued animation');
           this.isAnimating = false;
           
           // Play next animation in queue if exists
           if (this.animationQueue.length > 0) {
             const nextAnimation = this.animationQueue.shift();
+            console.log(`Playing next queued animation: ${nextAnimation}`);
             this.playAnimation(nextAnimation);
           } else {
             // Return to idle
+            console.log('No more animations in queue, returning to idle');
             this.playAnimation('idle');
           }
         }, this.animations[animationName].duration);
