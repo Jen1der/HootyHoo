@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
       this.debug('HootyController initialized', 'success');
     }
     
-    playAnimation(animFile, duration = 5000) {
+    playAnimation(animFile, duration = 7000) { // Changed from 5000 to 7000 milliseconds
       this.debug(`Playing animation: ${animFile}`, 'log');
       this.currentAnimation = animFile;
       
@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
       
       // Set timeout to return to idle after duration
       if (animFile !== 'HappyIdle.glb') {
+        this.debug(`Will return to idle after ${duration/1000} seconds`, 'log');
         this.animationTimeout = setTimeout(() => {
           this.playAnimation('HappyIdle.glb');
           this.debug('Returning to idle animation', 'log');
