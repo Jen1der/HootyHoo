@@ -58,9 +58,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Set up model loading and error handlers
   if (hootModel) {
-    debug('Setting up model with Happy Idle.glb', 'log');
+    debug('Setting up model with HappyIdle.glb', 'log');
     // Set the default idle animation
-    hootModel.setAttribute('src', 'models/Happy Idle.glb');
+    hootModel.setAttribute('src', 'models/HappyIdle.glb');
     
     // Set up animation mixer (use empty string for clip to let it use default)
     hootModel.setAttribute('animation-mixer', {
@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
     'models/BaseballPitching.glb',
     'models/BaseballStrike.glb',
     'models/BaseballUmpire.glb',
-    'models/GangnamStyle.glb',
+    'models/GangnamStyle.glb', 
     'models/HappyIdle.glb',
     'models/NorthernSoulSpinCombo.glb',
     'models/Owl_Mascot_0409005910_texture.glb',
