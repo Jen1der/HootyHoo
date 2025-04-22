@@ -6,34 +6,71 @@ document.addEventListener('DOMContentLoaded', function () {
   const debugPanel = document.getElementById('debug-panel');
   let hootModel = document.querySelector('#hooty');
 
-  class HootyController {
-  constructor(model, debugFn) {
+ // Add this to the beginning of your script.js file or as a new file
+
+class HootyController {
+  constructor(model, debugFunction) {
     this.model = model;
-    this.debug = debugFn || console.log;
-    this.debug("HootyController initialized", 'success');
+    this.debug = debugFunction || console.log;
+    this.currentAnimation = 'HappyIdle.glb';
+    this.debug('HootyController initialized', 'success');
   }
   
   playAnimation(animFile) {
     this.debug(`Playing animation: ${animFile}`, 'log');
-    this.model.setAttribute('src', `models/${animFile}`);
-    this.model.setAttribute('animation-mixer', { clip: '*', loop: 'repeat' });
+    this.currentAnimation = animFile;
+    
+    // Get the old model
+    const oldModel = this.model;
+    
+    // Create new model with the animation file
+    const newModel = document.createElement('a-gltf-model');
+    newModel.setAttribute('id', 'hooty');
+    newModel.setAttribute('src', `models/${animFile}`);
+    newModel.setAttribute('position', oldModel.getAttribute('position'));
+    newModel.setAttribute('scale', oldModel.getAttribute('scale'));
+    newModel.setAttribute('rotation', oldModel.getAttribute('rotation'));
+    newModel.setAttribute('animation-mixer', 'loop: repeat');
+    newModel.setAttribute('visible', 'true');
+    
+    // Replace old model with new one
+    oldModel.parentNode.replaceChild(newModel, oldModel);
+    
+    // Update the model reference
+    this.model = newModel;
+    
+    // Listen for events on the new model
+    newModel.addEventListener('model-loaded', () => {
+      this.debug(`Animation model loaded: ${animFile}`, 'success');
+    });
+    
+    newModel.addEventListener('model-error', (err) => {
+      this.debug(`Animation model error: ${err.detail || 'unknown error'}`, 'error');
+    });
   }
   
   reactToMessage(message) {
     this.debug(`Reacting to message: ${message}`, 'log');
     const lowerMsg = message.toLowerCase();
     
-    if (lowerMsg.includes('dance')) this.playAnimation('NorthernSoulSpinCombo.glb');
-    else if (lowerMsg.includes('wave')) this.playAnimation('WaveHipHopDance.glb');
-    else if (lowerMsg.includes('gangnam')) this.playAnimation('GangnamStyle.glb');
-    else if (lowerMsg.includes('salsa')) this.playAnimation('SalsaDancing.glb');
-    else if (lowerMsg.includes('baseball')) this.playAnimation('BaseballPitching.glb');
-    else if (lowerMsg.includes('hip-hop') || lowerMsg.includes('hip hop')) this.playAnimation('Shuffling.glb');
+    if (lowerMsg.includes('dance')) {
+      this.playAnimation('NorthernSoulSpinCombo.glb');
+    } else if (lowerMsg.includes('wave')) {
+      this.playAnimation('WaveHipHopDance.glb');
+    } else if (lowerMsg.includes('gangnam')) {
+      this.playAnimation('GangnamStyle.glb');
+    } else if (lowerMsg.includes('salsa')) {
+      this.playAnimation('SalsaDancing.glb');
+    } else if (lowerMsg.includes('baseball')) {
+      this.playAnimation('BaseballPitching.glb');
+    } else if (lowerMsg.includes('hip-hop') || lowerMsg.includes('hip hop')) {
+      this.playAnimation('Shuffling.glb');
+    }
   }
   
   reactToBotResponse(message) {
-    // Simple implementation - expand as needed
-    this.debug(`Bot said: ${message}`, 'log');
+    this.debug(`Bot response: ${message}`, 'log');
+    // Add logic to react to bot responses if needed
   }
 }
   // Debug function
