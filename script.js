@@ -141,4 +141,50 @@ document.addEventListener('DOMContentLoaded', function () {
       .catch(err => debug(`❌ Error: ${file} - ${err.message}`, 'error'));
   });
 });
+function initBotpress() {
+  if (typeof window.botpress !== 'undefined') {
+    debug("Botpress object found, initializing...", 'log');
+    try {
+      window.botpress.init({
+        botId: "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
+        clientId: "44c58e23-012d-4aa6-9617-abb818a66b42",
+        selector: "#webchat",
+        configuration: {
+          composerPlaceholder: "Let's go, Hoots!",
+          botName: "iHooty",
+          color: "#ffc53d",
+          variant: "solid",
+          themeMode: "light"
+        }
+      });
+      
+      // Set up event handlers after successful init
+      window.botpress.on("webchat:ready", () => {
+        debug("Botpress chat ready", 'success');
+        window.botpress.open();
+      });
+
+      window.botpress.on("webchat:message:sent", (event) => {
+        const msg = event.message?.text || "";
+        debug(`User: ${msg}`, 'log');
+        if (window.hootyController) window.hootyController.reactToMessage(msg);
+      });
+
+      window.botpress.on("webchat:message:received", (event) => {
+        const msg = event.message?.text || "";
+        debug(`Bot: ${msg}`, 'log');
+        if (window.hootyController) window.hootyController.reactToBotResponse(msg);
+      });
+      
+    } catch (e) {
+      debug(`Botpress init error: ${e.message}`, 'error');
+    }
+  } else {
+    debug("Botpress not loaded yet, retrying in 2 seconds...", 'warn');
+    setTimeout(initBotpress, 2000);
+  }
+}
+
+// Start trying to initialize Botpress sooner
+setTimeout(initBotpress, 1000);
 
