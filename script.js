@@ -248,17 +248,17 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Test if model files exist
   const modelFiles = [
-    'models/Baseball Milling Idle.glb',
-    'models/Baseball Pitching.glb',
-    'models/Baseball Strike.glb',
-    'models/Baseball Umpire.glb',
-    'models/Gangnam Style.glb',
-    'models/Happy Idle.glb',
-    'models/Northern Soul Spin Combo.glb',
+    'models/BaseballMillingIdle.glb',
+    'models/BaseballPitching.glb',
+    'models/BaseballStrike.glb',
+    'models/BaseballUmpire.glb',
+    'models/GangnamStyle.glb',
+    'models/HappyIdle.glb',
+    'models/NorthernSoulSpinCombo.glb',
     'models/Owl_Mascot_0409005910_texture.glb',
-    'models/Salsa Dancing.glb',
+    'models/SalsaDancing.glb',
     'models/Shuffling.glb',
-    'models/Wave Hip Hop Dance.glb'
+    'models/WaveHipHopDance.glb'
   ];
   
   modelFiles.forEach(file => {
@@ -291,42 +291,42 @@ class HootyController {
     // Define animations with their corresponding .glb files
     this.animations = {
       'idle': { 
-        src: 'models/Happy Idle.glb',
+        src: 'models/HappyIdle.glb',
         duration: 0, 
         loop: true 
       },
       'baseball-idle': { 
-        src: 'models/Baseball Milling Idle.glb',
+        src: 'models/BaseballMillingIdle.glb',
         duration: 5000, 
         loop: true 
       },
       'baseball-pitch': { 
-        src: 'models/Baseball Pitching.glb',  
+        src: 'models/BaseballPitching.glb',  
         duration: 3500, 
         loop: false 
       },
       'baseball-strike': { 
-        src: 'models/Baseball Strike.glb',  
+        src: 'models/BaseballStrike.glb',  
         duration: 3000, 
         loop: false 
       },
       'baseball-umpire': { 
-        src: 'models/Baseball Umpire.glb',  
+        src: 'models/BaseballUmpire.glb',  
         duration: 3000, 
         loop: false 
       },
       'gangnam': { 
-        src: 'models/Gangnam Style.glb',  
+        src: 'models/GangnamStyle.glb',  
         duration: 6000, 
         loop: false 
       },
       'soul-spin': { 
-        src: 'models/Northern Soul Spin Combo.glb',  
+        src: 'models/NorthernSoulSpinCombo.glb',  
         duration: 5000, 
         loop: false 
       },
       'salsa': { 
-        src: 'models/Salsa Dancing.glb',  
+        src: 'models/SalsaDancing.glb', 
         duration: 5000, 
         loop: false 
       },
@@ -336,22 +336,22 @@ class HootyController {
         loop: false 
       },
       'hip-hop': { 
-        src: 'models/Wave Hip Hop Dance.glb',  
+        src: 'models/WaveHipHopDance.glb',  
         duration: 5000, 
         loop: false 
       },
       'wave': { 
-        src: 'models/Wave Hip Hop Dance.glb',  
+        src: 'models/WaveHipHopDance.glb',  
         duration: 5000, 
         loop: false 
       },
       'dance': { 
-        src: 'models/Gangnam Style.glb',  
+        src: 'models/GangnamStyle.glb',  
         duration: 6000, 
         loop: false 
       },
       'heart': { 
-        src: 'models/Salsa Dancing.glb',  
+        src: 'models/SalsaDancing.glb',  
         duration: 5000, 
         loop: false 
       }
