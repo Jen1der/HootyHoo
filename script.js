@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
       this.debug('HootyController initialized', 'success');
     }
     
-    playAnimation(animFile, duration = 7000) { // Changed from 5000 to 7000 milliseconds
+    playAnimation(animFile, duration = 7000) {
       this.debug(`Playing animation: ${animFile}`, 'log');
       this.currentAnimation = animFile;
       
@@ -55,21 +55,30 @@ document.addEventListener('DOMContentLoaded', function () {
         clearTimeout(this.animationTimeout);
       }
       
-      // Get the old model
-      const oldModel = this.model;
+      // Get the current position, scale, rotation
+      const position = this.model.getAttribute('position');
+      const scale = this.model.getAttribute('scale');
+      const rotation = this.model.getAttribute('rotation');
+      
+      // First, remove ALL existing hooty models to prevent duplicates
+      const existingModels = document.querySelectorAll('#hooty');
+      existingModels.forEach(model => {
+        this.debug(`Removing existing hooty model`, 'log');
+        model.parentNode.removeChild(model);
+      });
       
       // Create new model with the animation file
       const newModel = document.createElement('a-entity');
       newModel.setAttribute('id', 'hooty');
       newModel.setAttribute('gltf-model', `models/${animFile}`);
-      newModel.setAttribute('position', oldModel.getAttribute('position'));
-      newModel.setAttribute('scale', oldModel.getAttribute('scale'));
-      newModel.setAttribute('rotation', oldModel.getAttribute('rotation'));
+      newModel.setAttribute('position', position);
+      newModel.setAttribute('scale', scale);
+      newModel.setAttribute('rotation', rotation);
       newModel.setAttribute('animation-mixer', 'loop: repeat');
       newModel.setAttribute('visible', 'true');
       
-      // Replace old model with new one
-      oldModel.parentNode.replaceChild(newModel, oldModel);
+      // Add the new model to the scene
+      scene.appendChild(newModel);
       
       // Update the model reference
       this.model = newModel;
@@ -137,19 +146,18 @@ document.addEventListener('DOMContentLoaded', function () {
     chatContainer.style.display = (chatContainer.style.display === 'none') ? 'block' : 'none';
   });
 
-  // Initialize Hooty
-  let hootModel = document.querySelector('#hooty');
-  if (hootModel) {
-    debug('Hooty model found in scene', 'success');
-    window.hootyController = new HootyController(hootModel, debug);
-    setupAnimationButtons();
-  } else {
-    debug('Hooty model not found, creating one', 'warn');
-    createHootyModel();
-  }
+  // Remove any leftover hooty models from previous sessions
+  const existingModels = document.querySelectorAll('#hooty');
+  existingModels.forEach(model => {
+    debug(`Removing leftover hooty model`, 'log');
+    model.parentNode.removeChild(model);
+  });
+
+  // Create a fresh Hooty model
+  createHootyModel();
 
   function createHootyModel() {
-    hootModel = document.createElement('a-entity');
+    const hootModel = document.createElement('a-entity');
     hootModel.setAttribute('id', 'hooty');
     hootModel.setAttribute('gltf-model', 'models/HappyIdle.glb');
     hootModel.setAttribute('position', '0 0 -3');
@@ -260,9 +268,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (scene.is('ar-mode')) {
       if (evt.detail.intersection) {
         const point = evt.detail.intersection.point;
-        hootModel = document.querySelector('#hooty');
-        if (hootModel) {
-          hootModel.setAttribute('position', point);
+        const hootyModel = document.querySelector('#hooty');
+        if (hootyModel) {
+          hootyModel.setAttribute('position', point);
           debug(`Placed at: ${JSON.stringify(point)}`, 'success');
         } else {
           debug('Hooty model not found for placement', 'error');
@@ -272,9 +280,9 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     } else {
       debug('Not in AR mode, placing in front of camera', 'log');
-      hootModel = document.querySelector('#hooty');
-      if (hootModel) {
-        hootModel.setAttribute('position', { x: 0, y: -0.5, z: -1.5 });
+      const hootyModel = document.querySelector('#hooty');
+      if (hootyModel) {
+        hootyModel.setAttribute('position', { x: 0, y: -0.5, z: -1.5 });
       }
     }
   });
