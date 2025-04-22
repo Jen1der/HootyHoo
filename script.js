@@ -6,6 +6,36 @@ document.addEventListener('DOMContentLoaded', function () {
   const debugPanel = document.getElementById('debug-panel');
   let hootModel = document.querySelector('#hooty');
 
+  class HootyController {
+  constructor(model, debugFn) {
+    this.model = model;
+    this.debug = debugFn || console.log;
+    this.debug("HootyController initialized", 'success');
+  }
+  
+  playAnimation(animFile) {
+    this.debug(`Playing animation: ${animFile}`, 'log');
+    this.model.setAttribute('src', `models/${animFile}`);
+    this.model.setAttribute('animation-mixer', { clip: '*', loop: 'repeat' });
+  }
+  
+  reactToMessage(message) {
+    this.debug(`Reacting to message: ${message}`, 'log');
+    const lowerMsg = message.toLowerCase();
+    
+    if (lowerMsg.includes('dance')) this.playAnimation('NorthernSoulSpinCombo.glb');
+    else if (lowerMsg.includes('wave')) this.playAnimation('WaveHipHopDance.glb');
+    else if (lowerMsg.includes('gangnam')) this.playAnimation('GangnamStyle.glb');
+    else if (lowerMsg.includes('salsa')) this.playAnimation('SalsaDancing.glb');
+    else if (lowerMsg.includes('baseball')) this.playAnimation('BaseballPitching.glb');
+    else if (lowerMsg.includes('hip-hop') || lowerMsg.includes('hip hop')) this.playAnimation('Shuffling.glb');
+  }
+  
+  reactToBotResponse(message) {
+    // Simple implementation - expand as needed
+    this.debug(`Bot said: ${message}`, 'log');
+  }
+}
   // Debug function
   function debug(message, type = 'log') {
     const colors = {
