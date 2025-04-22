@@ -292,3 +292,37 @@ document.addEventListener('DOMContentLoaded', function() {
   // Add this call
   setTimeout(testModelAccess, 1000);
 });
+
+// Add this to your script.js
+
+function tryAlternativeModelLoading() {
+  // Get the scene
+  const scene = document.querySelector('a-scene').object3D;
+  
+  // Create a new THREE.GLTFLoader
+  const loader = new THREE.GLTFLoader();
+  
+  // Try to load the model
+  loader.load(
+    'models/HappyIdle.glb',
+    function(gltf) {
+      console.log('Model loaded successfully with THREE.GLTFLoader');
+      
+      // Position the model
+      gltf.scene.position.set(0, -0.5, -2);
+      gltf.scene.scale.set(0.5, 0.5, 0.5);
+      
+      // Add to the scene
+      scene.add(gltf.scene);
+    },
+    function(xhr) {
+      console.log(`Loading progress: ${(xhr.loaded / xhr.total * 100)}%`);
+    },
+    function(error) {
+      console.error('Error loading model:', error);
+    }
+  );
+}
+
+// Call this function after the scene is loaded
+document.querySelector('a-scene').addEventListener('loaded', tryAlternativeModelLoading);
