@@ -49,13 +49,13 @@
   <!-- Animation controls buttons -->
   <div id="animation-controls">
     <h4>Test Animations</h4>
-    <button class="anim-button" data-anim="dance">Dance</button>
-    <button class="anim-button" data-anim="wave">Wave</button>
-    <button class="anim-button" data-anim="gangnam">Gangnam</button>
-    <button class="anim-button" data-anim="salsa">Salsa</button>
-    <button class="anim-button" data-anim="baseball-pitch">Pitch</button>
-    <button class="anim-button" data-anim="hip-hop">Hip Hop</button>
-    <button class="anim-button" data-anim="idle">Idle</button>
+    <button class="anim-button" data-anim="HappyIdle.glb">Idle</button>
+    <button class="anim-button" data-anim="WaveHipHopDance.glb">Wave</button>
+    <button class="anim-button" data-anim="GangnamStyle.glb">Gangnam</button>
+    <button class="anim-button" data-anim="SalsaDancing.glb">Salsa</button>
+    <button class="anim-button" data-anim="BaseballPitching.glb">Pitch</button>
+    <button class="anim-button" data-anim="Shuffling.glb">Hip Hop</button>
+    <button class="anim-button" data-anim="NorthernSoulSpinCombo.glb">Dance</button>
   </div>
   
   <!-- Debug panel and toggle -->
@@ -79,103 +79,8 @@
     <a-entity camera look-controls position="0 1.6 0"></a-entity>
   </a-scene>
   
-  <!-- Additional debugging script -->
-  <script>
-    // Override console.log to also display in debug panel
-    const originalConsoleLog = console.log;
-    const originalConsoleError = console.error;
-    const originalConsoleWarn = console.warn;
-    
-    // Wait for DOM to load
-    document.addEventListener('DOMContentLoaded', function() {
-      const debugPanel = document.getElementById('debug-panel');
-      const debugToggle = document.getElementById('debug-toggle');
-      
-      if (debugToggle && debugPanel) {
-        debugToggle.addEventListener('click', function() {
-          if (debugPanel.style.display === 'none') {
-            debugPanel.style.display = 'block';
-          } else {
-            debugPanel.style.display = 'none';
-          }
-        });
-        
-        // Override console methods to also display in debug panel
-        console.log = function() {
-          const args = Array.from(arguments);
-          originalConsoleLog.apply(console, args);
-          
-          if (debugPanel) {
-            const msg = args.map(arg => {
-              if (typeof arg === 'object') {
-                try {
-                  return JSON.stringify(arg);
-                } catch (e) {
-                  return arg.toString();
-                }
-              }
-              return arg;
-            }).join(' ');
-            
-            const logLine = document.createElement('div');
-            logLine.textContent = msg;
-            debugPanel.appendChild(logLine);
-            debugPanel.scrollTop = debugPanel.scrollHeight;
-          }
-        };
-        
-        console.error = function() {
-          const args = Array.from(arguments);
-          originalConsoleError.apply(console, args);
-          
-          if (debugPanel) {
-            const msg = args.map(arg => {
-              if (typeof arg === 'object') {
-                try {
-                  return JSON.stringify(arg);
-                } catch (e) {
-                  return arg.toString();
-                }
-              }
-              return arg;
-            }).join(' ');
-            
-            const logLine = document.createElement('div');
-            logLine.textContent = '❌ ERROR: ' + msg;
-            logLine.style.color = '#ff5555';
-            debugPanel.appendChild(logLine);
-            debugPanel.scrollTop = debugPanel.scrollHeight;
-          }
-        };
-        
-        console.warn = function() {
-          const args = Array.from(arguments);
-          originalConsoleWarn.apply(console, args);
-          
-          if (debugPanel) {
-            const msg = args.map(arg => {
-              if (typeof arg === 'object') {
-                try {
-                  return JSON.stringify(arg);
-                } catch (e) {
-                  return arg.toString();
-                }
-              }
-              return arg;
-            }).join(' ');
-            
-            const logLine = document.createElement('div');
-            logLine.textContent = '⚠️ WARN: ' + msg;
-            logLine.style.color = '#ffaa00';
-            debugPanel.appendChild(logLine);
-            debugPanel.scrollTop = debugPanel.scrollHeight;
-          }
-        };
-      }
-    });
-  </script>
-  
   <!-- Include your JavaScript -->
   <script src="script.js"></script>
 </body>
 </html>
+
