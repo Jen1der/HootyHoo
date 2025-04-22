@@ -326,3 +326,152 @@ function tryAlternativeModelLoading() {
 
 // Call this function after the scene is loaded
 document.querySelector('a-scene').addEventListener('loaded', tryAlternativeModelLoading);
+// Add this script to fix model loading issues
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Make debug panel visible
+  document.getElementById('debug-panel').style.display = 'block';
+  
+  // Create a debug function for monitoring
+  function debug(message, type = 'log') {
+    const colors = {
+      log: '#ffffff',
+      warn: '#ffaa00',
+      error: '#ff5555',
+      success: '#55ff55'
+    };
+    
+    console[type](message);
+    const debugPanel = document.getElementById('debug-panel');
+    if (debugPanel) {
+      const logLine = document.createElement('div');
+      logLine.textContent = message;
+      logLine.style.color = colors[type];
+      debugPanel.appendChild(logLine);
+      debugPanel.scrollTop = debugPanel.scrollHeight;
+    }
+  }
+
+  // Function to directly load the model using THREE.js
+  function loadHootyModel() {
+    debug("Attempting to load Hooty model directly...", 'log');
+    
+    // Get the scene
+    const scene = document.querySelector('a-scene');
+    
+    // First, try to remove any existing model
+    const existingHooty = document.querySelector('#hooty');
+    if (existingHooty) {
+      debug("Removing existing Hooty model", 'warn');
+      existingHooty.parentNode.removeChild(existingHooty);
+    }
+    
+    // Create a new entity
+    const newHooty = document.createElement('a-entity');
+    newHooty.id = 'hooty';
+    
+    // Set model source, position, and scale
+    newHooty.setAttribute('gltf-model', 'models/HappyIdle.glb');
+    newHooty.setAttribute('position', '0 0 -2');  // Positioned 2 meters in front of camera
+    newHooty.setAttribute('scale', '0.5 0.5 0.5');
+    newHooty.setAttribute('animation-mixer', '');
+    newHooty.setAttribute('visible', 'true');
+    
+    // Add event listeners for debugging
+    newHooty.addEventListener('model-loaded', function() {
+      debug("SUCCESS: Hooty model loaded!", 'success');
+    });
+    
+    newHooty.addEventListener('model-error', function(err) {
+      debug(`ERROR: Model failed to load: ${JSON.stringify(err.detail)}`, 'error');
+      
+      // Try a fallback approach
+      debug("Trying fallback approach...", 'warn');
+      tryFallbackModelLoading();
+    });
+    
+    // Add to scene
+    debug("Adding new Hooty model to scene", 'log');
+    scene.appendChild(newHooty);
+  }
+  
+  // Fallback method using different approach
+  function tryFallbackModelLoading() {
+    debug("Using fallback model loading method", 'warn');
+    
+    // Try a different model as a test
+    const fallbackEntity = document.createElement('a-box');
+    fallbackEntity.setAttribute('position', '0 0 -3');
+    fallbackEntity.setAttribute('color', 'red');
+    fallbackEntity.setAttribute('depth', '0.5');
+    fallbackEntity.setAttribute('height', '0.5');
+    fallbackEntity.setAttribute('width', '0.5');
+    
+    document.querySelector('a-scene').appendChild(fallbackEntity);
+    debug("Added a fallback red cube to verify scene is working", 'warn');
+    
+    // Create a minimal entity with direct URL
+    const minimalEntity = document.createElement('a-entity');
+    minimalEntity.setAttribute('gltf-model', 'url(models/HappyIdle.glb)');
+    minimalEntity.setAttribute('position', '0 1 -3');
+    minimalEntity.setAttribute('scale', '0.5 0.5 0.5');
+    
+    document.querySelector('a-scene').appendChild(minimalEntity);
+    debug("Added minimal model entity as second fallback", 'warn');
+  }
+
+  // Wait for A-Frame to initialize, then load model
+  if (document.querySelector('a-scene').hasLoaded) {
+    debug("Scene already loaded, adding model", 'log');
+    loadHootyModel();
+  } else {
+    debug("Waiting for scene to load", 'log');
+    document.querySelector('a-scene').addEventListener('loaded', function() {
+      debug("Scene loaded, adding model", 'log');
+      loadHootyModel();
+    });
+  }
+  
+  // Set up model loading verification
+  setTimeout(function() {
+    debug("Checking if model was loaded after delay", 'log');
+    
+    const hootyModel = document.querySelector('#hooty');
+    if (hootyModel) {
+      debug("Hooty model element exists in DOM", 'success');
+      
+      // Force visibility in case it's hidden
+      hootyModel.setAttribute('visible', 'true');
+      
+      // Update position to ensure it's in view
+      hootyModel.setAttribute('position', '0 0 -2');
+      debug("Updated Hooty position to ensure visibility", 'log');
+    } else {
+      debug("Hooty model NOT found in DOM after delay", 'error');
+      tryFallbackModelLoading();
+    }
+  }, 3000);
+  
+  // Create basic HootyController for animation controls
+  window.hootyController = {
+    playAnimation: function(animFile) {
+      debug(`Playing animation: ${animFile}`, 'log');
+      const hooty = document.querySelector('#hooty');
+      if (hooty) {
+        hooty.setAttribute('gltf-model', `models/${animFile}`);
+        hooty.setAttribute('animation-mixer', '');
+      } else {
+        debug("Cannot play animation - Hooty model not found", 'error');
+      }
+    }
+  };
+  
+  // Set up animation buttons
+  document.querySelectorAll('.anim-button').forEach(function(button) {
+    button.addEventListener('click', function() {
+      const anim = this.getAttribute('data-anim');
+      debug(`Animation button clicked: ${anim}`, 'log');
+      window.hootyController.playAnimation(anim);
+    });
+  });
+});
