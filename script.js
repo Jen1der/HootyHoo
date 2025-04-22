@@ -218,3 +218,40 @@ function initBotpress() {
 // Start trying to initialize Botpress sooner
 setTimeout(initBotpress, 1000);
 
+// Add this function to your script.js
+function testModelAccess() {
+  const testModel = 'models/HappyIdle.glb';
+  debug(`Testing access to model: ${testModel}`, 'log');
+  
+  fetch(testModel)
+    .then(response => {
+      if (!response.ok) {
+        debug(`Failed to fetch ${testModel}: HTTP ${response.status}`, 'error');
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      const size = Math.round(blob.size / 1024);
+      debug(`Successfully loaded ${testModel} (${size} KB)`, 'success');
+      
+      // Try to create a model URL to see if it's valid
+      const modelUrl = URL.createObjectURL(blob);
+      debug(`Created model URL: ${modelUrl}`, 'success');
+      
+      // Attempt to load this verified model
+      const hootyModel = document.querySelector('#hooty');
+      hootyModel.setAttribute('src', modelUrl);
+    })
+    .catch(error => {
+      debug(`Error accessing model: ${error.message}`, 'error');
+    });
+}
+
+// Call this function after the DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Your existing code...
+  
+  // Add this call
+  setTimeout(testModelAccess, 1000);
+});
