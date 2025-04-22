@@ -62,22 +62,20 @@
   <button id="debug-toggle">Debug</button>
   <div id="debug-panel"></div>
   
-  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
-    <!-- Hooty 3D model with animation mixer -->
-    <a-entity id="ar-content" visible="true">
-      <a-gltf-model
-        id="hooty"
-        src="models/HappyIdle.glb"
-        position="0 -0.5 -2"
-        scale="0.5 0.5 0.5"
-        rotation="0 0 0"
-        animation-mixer="loop: repeat;">
-      </a-gltf-model>
-    </a-entity>
-    
-    <!-- Camera -->
-    <a-entity camera look-controls position="0 1.6 0"></a-entity>
-  </a-scene>
+<a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true;" loading-screen="enabled: true;">
+  <!-- Add a simple environment to better see the model -->
+  <a-entity environment="preset: default; ground: flat;"></a-entity>
+  
+  <!-- Add a light to ensure model is visible -->
+  <a-entity light="type: ambient; color: #BBB; intensity: 0.5;"></a-entity>
+  <a-entity light="type: directional; color: #FFF; intensity: 1.0;" position="-0.5 1 1"></a-entity>
+  
+  <!-- Default box to confirm scene is working -->
+  <a-box position="0 0 -3" rotation="0 45 45" scale="0.25 0.25 0.25" color="blue"></a-box>
+  
+  <!-- Camera -->  
+  <a-entity camera look-controls position="0 1.6 0"></a-entity>
+</a-scene>
   
   <!-- Include your JavaScript -->
   <script src="script.js"></script>
