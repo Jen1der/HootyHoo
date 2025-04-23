@@ -5,12 +5,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const debugPanel = document.getElementById('debug-panel');
   const debugToggle = document.getElementById('debug-toggle');
   
-  // Toggle debug panel visibility
+  // Toggle debug panel visibility and show it by default to help troubleshoot
   debugToggle.addEventListener('click', function() {
     debugPanel.style.display = debugPanel.style.display === 'none' ? 'block' : 'none';
   });
-  debugPanel.style.display = 'none'; // Initially hidden
-
+  debugPanel.style.display = 'block'; // Initially visible for troubleshooting
+  
   // Debug function
   function debug(message, type = 'log') {
     const colors = {
@@ -141,9 +141,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Toggle chat visibility
-  chatContainer.style.display = 'none';
   chatToggle.addEventListener('click', () => {
-    chatContainer.style.display = (chatContainer.style.display === 'none') ? 'block' : 'none';
+    if (chatContainer.style.display === 'none' || chatContainer.style.display === '') {
+      chatContainer.style.display = 'block';
+      debug('Chat container shown', 'success');
+    } else {
+      chatContainer.style.display = 'none';
+      debug('Chat container hidden', 'log');
+    }
   });
 
   // Remove any leftover hooty models from previous sessions
@@ -219,12 +224,29 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
   
-  // Initialize Botpress chat with updated configuration
+  // Initialize Botpress chat with updated configuration and additional error handling
   function initBotpress() {
-    if (window.botpress) {
+    debug("Attempting to initialize Botpress...", 'log');
+    
+    if (!window.botpress) {
+      debug("Botpress not loaded yet, retrying in 2 seconds...", 'warn');
+      setTimeout(initBotpress, 2000);
+      return;
+    }
+    
+    // Set a flag to prevent duplicate initialization
+    if (window.botpressInitialized) {
+      debug("Botpress already initialized, skipping", 'warn');
+      return;
+    }
+    
+    window.botpressInitialized = true;
+    
+    try {
+      // Set up event listeners first
       window.botpress.on("webchat:ready", () => {
-        debug("Botpress chat ready", 'success');
-        window.botpress.open();
+        debug("Botpress chat ready!", 'success');
+        setTimeout(() => window.botpress.open(), 1000);
       });
 
       window.botpress.on("webchat:message:sent", (event) => {
@@ -238,45 +260,76 @@ document.addEventListener('DOMContentLoaded', function () {
         debug(`Bot: ${msg}`, 'log');
         window.hootyController?.reactToBotResponse(msg);
       });
-
-      try {
-        window.botpress.init({
-          "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
-          "configuration": {
-            "composerPlaceholder": "Let's go, Hoots!",
-            "botName": "iHooty",
-            "botAvatar": "",
-            "website": {
-              "title": "https://ofallonhoots.com/",
-              "link": "https://ofallonhoots.com/"
-            },
-            "email": {
-              "title": "Ofallonhoots@prospectleague.com",
-              "link": "Ofallonhoots@prospectleague.com"
-            },
-            "phone": {
-              "title": "6367414668",
-              "link": "6367414668"
-            },
-            "termsOfService": {},
-            "privacyPolicy": {},
-            "color": "#ffc53d",
-            "variant": "solid",
-            "themeMode": "light",
-            "fontFamily": "ibm",
-            "radius": 1
+      
+      // Initialize with full configuration
+      debug("Calling botpress.init...", 'log');
+      window.botpress.init({
+        "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
+        "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
+        "selector": "#webchat",
+        "configuration": {
+          "composerPlaceholder": "Let's go, Hoots!",
+          "botName": "iHooty",
+          "botAvatar": "",
+          "website": {
+            "title": "https://ofallonhoots.com/",
+            "link": "https://ofallonhoots.com/"
           },
-          "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
-          "selector": "#webchat"
-        });
-        debug("Botpress initialized with updated configuration", 'success');
-      } catch (e) {
-        debug(`Botpress init error: ${e.message}`, 'error');
-        setTimeout(initBotpress, 2000);
-      }
-    } else {
-      debug("Botpress not loaded yet, retrying...", 'warn');
-      setTimeout(initBotpress, 2000);
+          "email": {
+            "title": "Ofallonhoots@prospectleague.com",
+            "link": "Ofallonhoots@prospectleague.com"
+          },
+          "phone": {
+            "title": "6367414668",
+            "link": "6367414668"
+          },
+          "termsOfService": {},
+          "privacyPolicy": {},
+          "color": "#ffc53d",
+          "variant": "solid",
+          "themeMode": "light",
+          "fontFamily": "ibm",
+          "radius": 1
+        }
+      });
+      debug("Botpress initialization called successfully", 'success');
+      
+      // Check if it loaded properly
+      setTimeout(() => {
+        const botpressElements = document.querySelectorAll('.bpWebchat');
+        if (botpressElements.length === 0) {
+          debug("⚠️ No Botpress elements found after initialization", 'warn');
+          // Try a simpler initialization
+          simpleBotpressInit();
+        } else {
+          debug(`Found ${botpressElements.length} Botpress elements`, 'success');
+        }
+      }, 3000);
+      
+    } catch (e) {
+      debug(`❌ Botpress init error: ${e.message}`, 'error');
+      // Try a simpler initialization after an error
+      setTimeout(simpleBotpressInit, 2000);
+    }
+  }
+  
+  // Simplified Botpress initialization as a fallback
+  function simpleBotpressInit() {
+    try {
+      debug("Attempting simplified Botpress initialization...", 'warn');
+      window.botpress.init({
+        "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
+        "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
+        "selector": "#webchat",
+        "configuration": {
+          "composerPlaceholder": "Let's go, Hoots!",
+          "botName": "iHooty",
+          "color": "#ffc53d"
+        }
+      });
+      debug("Simplified Botpress initialization complete", 'success');
+    } catch (e) {
+      debug(`❌ Simplified Botpress init error: ${e.message}`, 'error');
     }
   }
 
@@ -307,4 +360,13 @@ document.addEventListener('DOMContentLoaded', function () {
   // Start initialization processes
   setTimeout(checkModelFiles, 1000);
   setTimeout(initBotpress, 2000);
+  
+  // Force show chat on button click (debug)
+  chatToggle.addEventListener('dblclick', function() {
+    debug("Force showing chat container", 'warn');
+    chatContainer.style.display = 'block';
+    chatContainer.style.visibility = 'visible';
+    chatContainer.style.opacity = '1';
+    chatContainer.style.zIndex = '9999';
+  });
 });
