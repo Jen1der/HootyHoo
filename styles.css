@@ -14,27 +14,28 @@ body {
 
 /* Chatbot Container */
 #webchat {
-  width: 400px;
-  height: 600px;
+  width: 100%;
+  height: 100%;
   max-width: 100%;
-  margin: 20px auto;
+  margin: 0;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
   background: white;
+  overflow: hidden;
 }
 
-/* Customize Chatbot Appearance */
+/* Customize Chatbot Appearance - Important flags to override any conflicting styles */
 #webchat .bpWebchat {
-  position: unset;
-  width: 100%;
-  height: 100%;
-  max-height: 100%;
-  max-width: 100%;
+  position: unset !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  max-width: 100% !important;
 }
 
 /* Hide Floating Chat Button */
 #webchat .bpFab {
-  display: none;
+  display: none !important;
 }
 
 /* Header Styling */
@@ -61,27 +62,34 @@ footer {
   width: 300px;
   height: 400px;
   z-index: 1000;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.9);
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: none; /* Initially hidden, toggled by button */
 }
 
 /* Toggle button to show/hide chat */
 #chat-toggle {
   position: fixed;
   bottom: 20px;
-  right: 330px;
+  right: 20px;
   z-index: 1001;
   background-color: #ffc53d;
   border: none;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
+  font-size: 16px;
   color: white;
   font-weight: bold;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   cursor: pointer;
+}
+
+#chat-toggle:hover {
+  background-color: #ffb300;
+  transform: scale(1.05);
 }
 
 .instructions {
@@ -94,6 +102,7 @@ footer {
   border-radius: 5px;
   max-width: 300px;
   z-index: 1000;
+  font-size: 14px;
 }
 
 #animation-controls {
@@ -136,15 +145,14 @@ footer {
   right: 10px;
   width: 300px;
   height: 200px;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.8);
   color: #00ff00;
   font-family: monospace;
-  font-size: 10px;
+  font-size: 12px;
   padding: 10px;
   border-radius: 5px;
   overflow-y: scroll;
   z-index: 1002;
-  display: none;
 }
 
 #debug-toggle {
@@ -160,86 +168,51 @@ footer {
   cursor: pointer;
 }
 
-/* Override nested chat container styles when in AR mode */
-#chat-container #webchat {
-  width: 100%;
-  height: 100%;
-  margin: 0;
+/* Fix for AR.js scene overlay issues */
+.a-enter-vr {
+  position: fixed !important;
+  bottom: 20px !important;
+  left: 20px !important;
 }
 
-/* Add this to your styles.css file */
-
-#debug-panel {
-  position: fixed;
-  bottom: 10px;
-  left: 10px;
-  width: 80%;
-  max-width: 400px;
-  height: 200px;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 10px;
-  overflow-y: auto;
-  z-index: 1000;
-  font-family: monospace;
-  border-radius: 5px;
-  font-size: 12px;
-}
-
-#debug-toggle, #chat-toggle {
-  position: fixed;
-  z-index: 1001;
-  padding: 5px 10px;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-#debug-toggle {
-  top: 10px;
-  left: 10px;
-}
-
-#chat-toggle {
-  top: 10px;
-  right: 10px;
-}
-
-#animation-controls {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 10px;
-  border-radius: 5px;
-  z-index: 1000;
-}
-
-.anim-button {
-  margin: 5px;
-  padding: 5px 10px;
-  background-color: #444;
-  color: white;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.anim-button:hover {
-  background-color: #666;
-}
-
-.instructions {
-  position: fixed;
-  top: 50px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  color: white;
-  background-color: rgba(0, 0, 0, 0.5);
-  padding: 10px;
-  z-index: 100;
+/* Make sure chat displays properly on mobile */
+@media (max-width: 767px) {
+  #chat-container {
+    width: 90%;
+    height: 50%;
+    left: 5%;
+    right: 5%;
+    bottom: 70px;
+  }
+  
+  #chat-toggle {
+    width: 50px;
+    height: 50px;
+    font-size: 14px;
+    right: 10px;
+    bottom: 10px;
+  }
+  
+  .instructions {
+    top: 5px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    max-width: 90%;
+    font-size: 12px;
+    text-align: center;
+  }
+  
+  #animation-controls {
+    bottom: 70px;
+    left: 5px;
+    right: 5px;
+    padding: 5px;
+  }
+  
+  .anim-button {
+    padding: 5px 8px;
+    margin: 2px;
+    font-size: 12px;
+  }
 }
