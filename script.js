@@ -401,3 +401,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 });
+// Add this after Botpress initialization
+window.botpress.on("webchat:message:sent", (event) => {
+  const msg = event.message?.text || "";
+  debug(`User: ${msg}`, 'log');
+  window.hootyController?.reactToMessage(msg);
+});
+
+window.botpress.on("webchat:message:received", (event) => {
+  const msg = event.message?.text || "";
+  debug(`Bot: ${msg}`, 'log');
+  window.hootyController?.reactToBotResponse(msg);
+});
