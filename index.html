@@ -39,13 +39,12 @@
   <!-- Debug panel -->
   <div id="debug-panel"></div>
   
-  <!-- Repositioned chat wrapper to the bottom right -->
-  <div id="chat-wrapper">
-    <div id="chat-container">
-      <div id="webchat"></div>
-    </div>
-    <button id="chat-toggle">💬</button>
+<div id="chat-wrapper">
+  <div id="chat-container">
+    <div id="webchat"></div>
   </div>
+  <button id="chat-toggle">💬</button>
+</div>
   
   <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true;" loading-screen="enabled: true;">
     <!-- AR content container -->
@@ -61,7 +60,28 @@
     <!-- Camera -->  
     <a-entity camera look-controls position="0 1.6 0"></a-entity>
   </a-scene>
+  <script>
+  window.botpress.on("webchat:ready", () => {
+    // Don't auto-open the chat, let your toggle button control it
+    // window.botpress.open();
+  });
   
+  window.botpress.init({
+    "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
+    "configuration": {
+      "composerPlaceholder": "Let's go, Hoots!",
+      "botName": "iHooty",
+      "color": "#ffc53d",
+      "variant": "solid",
+      "themeMode": "light",
+      "fontFamily": "ibm",
+      "radius": 1
+    },
+    "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
+    "selector": "#webchat",
+    "hideWidget": true
+  });
+</script>
   <!-- Include your JavaScript -->
   <script src="script.js"></script>
 </body>
