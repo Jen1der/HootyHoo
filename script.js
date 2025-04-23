@@ -5,6 +5,33 @@ document.addEventListener('DOMContentLoaded', function () {
   const debugPanel = document.getElementById('debug-panel');
   const debugToggle = document.getElementById('debug-toggle');
   
+  // Debug utility function
+  function debug(message, type = 'log') {
+    console[type](message);
+    
+    if (debugPanel) {
+      const msgElement = document.createElement('div');
+      msgElement.textContent = message;
+      msgElement.classList.add(type);
+      debugPanel.appendChild(msgElement);
+      
+      // Auto-scroll to bottom
+      debugPanel.scrollTop = debugPanel.scrollHeight;
+      
+      // Limit debug entries
+      while (debugPanel.children.length > 50) {
+        debugPanel.removeChild(debugPanel.firstChild);
+      }
+    }
+  }
+  
+  // Toggle debug panel
+  if (debugToggle) {
+    debugToggle.addEventListener('click', function() {
+      debugPanel.style.display = debugPanel.style.display === 'none' ? 'block' : 'none';
+    });
+  }
+  
   // Hooty Controller Class
   class HootyController {
     constructor(model, debugFunction) {
@@ -15,76 +42,57 @@ document.addEventListener('DOMContentLoaded', function () {
       this.debug('HootyController initialized', 'success');
     }
     
-playAnimation(animFile, duration = 7000) {
-  this.debug(`Playing animation: ${animFile}`, 'log');
-  this.currentAnimation = animFile;
+    playAnimation(animFile, duration = 7000) {
+      this.debug(`Playing animation: ${animFile}`, 'log');
+      this.currentAnimation = animFile;
 
-  if (this.animationTimeout) {
-    clearTimeout(this.animationTimeout);
-  }
+      if (this.animationTimeout) {
+        clearTimeout(this.animationTimeout);
+      }
 
-  const position = this.model.getAttribute('position');
-  const scale = this.model.getAttribute('scale');
-  const rotation = this.model.getAttribute('rotation');
+      const position = this.model.getAttribute('position');
+      const scale = this.model.getAttribute('scale');
+      const rotation = this.model.getAttribute('rotation');
 
-  const existingModels = document.querySelectorAll('#hooty');
-  existingModels.forEach(model => {
-    this.debug(`Removing existing hooty model`, 'log');
-    model.parentNode.removeChild(model);
-  });
+      const existingModels = document.querySelectorAll('#hooty');
+      existingModels.forEach(model => {
+        this.debug(`Removing existing hooty model`, 'log');
+        model.parentNode.removeChild(model);
+      });
 
-  const newModel = document.createElement('a-entity');
-  newModel.setAttribute('id', 'hooty');
-  newModel.setAttribute('gltf-model', `models/${animFile}`);
-  newModel.setAttribute('position', position);
-  newModel.setAttribute('scale', scale);
-  newModel.setAttribute('rotation', rotation);
-  newModel.setAttribute('visible', 'true');
-
-  // Wait until model is loaded to apply mixer
-  newModel.addEventListener('model-loaded', () => {
-    this.debug(`✅ Loaded: ${animFile}`, 'success');
-    newModel.setAttribute('animation-mixer', { loop: 'repeat' });
-
-    if (animFile !== 'HappyIdle.glb') {
-      this.animationTimeout = setTimeout(() => {
-        this.playAnimation('HappyIdle.glb');
-        this.debug('Returning to idle animation', 'log');
-      }, duration);
-    }
-  });
-
-  newModel.addEventListener('model-error', (err) => {
-    this.debug(`Animation model error: ${err.detail || 'unknown error'}`, 'error');
-  });
-
-  document.querySelector('#ar-content').appendChild(newModel);
-  this.model = newModel;
-}
+      const newModel = document.createElement('a-entity');
+      newModel.setAttribute('id', 'hooty');
+      newModel.setAttribute('gltf-model', `models/${animFile}`);
+      newModel.setAttribute('position', position);
+      newModel.setAttribute('scale', scale);
+      newModel.setAttribute('rotation', rotation);
+      newModel.setAttribute('visible', 'true');
 
       // Add the new model to the scene
-      scene.appendChild(newModel);
+      const arContent = document.querySelector('#ar-content') || scene;
+      arContent.appendChild(newModel);
       
       // Update the model reference
       this.model = newModel;
       
       // Listen for events on the new model
       newModel.addEventListener('model-loaded', () => {
-        this.debug(`Animation model loaded: ${animFile}`, 'success');
+        this.debug(`✅ Loaded: ${animFile}`, 'success');
+        newModel.setAttribute('animation-mixer', { loop: 'repeat' });
+        
+        // Set timeout to return to idle after duration
+        if (animFile !== 'HappyIdle.glb') {
+          this.debug(`Will return to idle after ${duration/1000} seconds`, 'log');
+          this.animationTimeout = setTimeout(() => {
+            this.playAnimation('HappyIdle.glb');
+            this.debug('Returning to idle animation', 'log');
+          }, duration);
+        }
       });
       
       newModel.addEventListener('model-error', (err) => {
         this.debug(`Animation model error: ${err.detail || 'unknown error'}`, 'error');
       });
-      
-      // Set timeout to return to idle after duration
-      if (animFile !== 'HappyIdle.glb') {
-        this.debug(`Will return to idle after ${duration/1000} seconds`, 'log');
-        this.animationTimeout = setTimeout(() => {
-          this.playAnimation('HappyIdle.glb');
-          this.debug('Returning to idle animation', 'log');
-        }, duration);
-      }
     }
     
     reactToMessage(message) {
@@ -125,15 +133,12 @@ playAnimation(animFile, duration = 7000) {
     }
   }
 
-const chatToggle = document.getElementById('chat-toggle');
-const chatContainer = document.getElementById('chat-container');
-
-chatToggle.addEventListener('click', () => {
-  chatContainer.style.display = (chatContainer.style.display === 'none' || chatContainer.style.display === '') 
-    ? 'block' 
-    : 'none';
-});
-
+  // Set up chat toggle behavior
+  chatToggle.addEventListener('click', () => {
+    chatContainer.style.display = (chatContainer.style.display === 'none' || chatContainer.style.display === '') 
+      ? 'block' 
+      : 'none';
+  });
 
   // Remove any leftover hooty models from previous sessions
   const existingModels = document.querySelectorAll('#hooty');
@@ -154,7 +159,8 @@ chatToggle.addEventListener('click', () => {
     hootModel.setAttribute('animation-mixer', 'loop: repeat');
     hootModel.setAttribute('visible', 'true');
     
-    scene.appendChild(hootModel);
+    const arContent = document.querySelector('#ar-content') || scene;
+    arContent.appendChild(hootModel);
     
     hootModel.addEventListener('model-loaded', () => {
       debug('Hooty model created and loaded successfully', 'success');
@@ -230,7 +236,6 @@ chatToggle.addEventListener('click', () => {
       // Set up event listeners first
       window.botpress.on("webchat:ready", () => {
         debug("Botpress chat ready!", 'success');
-        setTimeout(() => window.botpress.open(), 1000);
       });
 
       window.botpress.on("webchat:message:sent", (event) => {
@@ -275,11 +280,17 @@ chatToggle.addEventListener('click', () => {
           "radius": 1
         }
       });
-      
+    } catch (err) {
+      debug(`Botpress initialization error: ${err.message}`, 'error');
+      // Try simplified initialization as fallback
+      setTimeout(simpleBotpressInit, 2000);
+    }
+  }
 
   // Simplified Botpress initialization as a fallback
   function simpleBotpressInit() {
     try {
+      debug("Attempting simplified Botpress initialization...", 'warn');
       window.botpress.init({
         "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
         "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
@@ -290,7 +301,10 @@ chatToggle.addEventListener('click', () => {
           "color": "#ffc53d"
         }
       });
-
+    } catch (err) {
+      debug(`Simplified Botpress initialization error: ${err.message}`, 'error');
+    }
+  }
 
   // Handle AR placement
   scene.addEventListener('click', function (evt) {
