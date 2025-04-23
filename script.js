@@ -46,44 +46,36 @@ document.addEventListener('DOMContentLoaded', function () {
       this.debug('HootyController initialized', 'success');
     }
     
-    playAnimation(animFile, duration = 7000) {
-      this.debug(`Playing animation: ${animFile}`, 'log');
-      this.currentAnimation = animFile;
-  
+playAnimation(animFile, duration = 7000) {
+  this.debug(`Playing animation: ${animFile}`, 'log');
+  this.currentAnimation = animFile;
 
-      // Clear any existing animation timeout
-      if (this.animationTimeout) {
-        clearTimeout(this.animationTimeout);
-      }
-      
-      // Get the current position, scale, rotation
-      const position = this.model.getAttribute('position');
-      const scale = this.model.getAttribute('scale');
-      const rotation = this.model.getAttribute('rotation');
-      
-      // First, remove ALL existing hooty models to prevent duplicates
-      const existingModels = document.querySelectorAll('#hooty');
-      existingModels.forEach(model => {
-        this.debug(`Removing existing hooty model`, 'log');
-        model.parentNode.removeChild(model);
-      });
-      
-      // Create new model with the animation file
-      const newModel = document.createElement('a-entity');
-      newModel.setAttribute('id', 'hooty');
-      newModel.setAttribute('gltf-model', `models/${animFile}`);
-      newModel.setAttribute('position', position);
-      newModel.setAttribute('scale', scale);
-      newModel.setAttribute('rotation', rotation);
-      newModel.setAttribute('animation-mixer', 'loop: repeat');
-      newModel.setAttribute('visible', 'true');
-       newModel.addEventListener('model-loaded', () => {
+  if (this.animationTimeout) {
+    clearTimeout(this.animationTimeout);
+  }
+
+  const position = this.model.getAttribute('position');
+  const scale = this.model.getAttribute('scale');
+  const rotation = this.model.getAttribute('rotation');
+
+  const existingModels = document.querySelectorAll('#hooty');
+  existingModels.forEach(model => {
+    this.debug(`Removing existing hooty model`, 'log');
+    model.parentNode.removeChild(model);
+  });
+
+  const newModel = document.createElement('a-entity');
+  newModel.setAttribute('id', 'hooty');
+  newModel.setAttribute('gltf-model', `models/${animFile}`);
+  newModel.setAttribute('position', position);
+  newModel.setAttribute('scale', scale);
+  newModel.setAttribute('rotation', rotation);
+  newModel.setAttribute('visible', 'true');
+
+  // Wait until model is loaded to apply mixer
+  newModel.addEventListener('model-loaded', () => {
     this.debug(`✅ Loaded: ${animFile}`, 'success');
-
-    // Apply animation-mixer after model loads
-    newModel.setAttribute('animation-mixer', {
-      loop: 'repeat'
-    });
+    newModel.setAttribute('animation-mixer', { loop: 'repeat' });
 
     if (animFile !== 'HappyIdle.glb') {
       this.animationTimeout = setTimeout(() => {
@@ -93,10 +85,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Append to AR scene or entity
+  newModel.addEventListener('model-error', (err) => {
+    this.debug(`Animation model error: ${err.detail || 'unknown error'}`, 'error');
+  });
+
   document.querySelector('#ar-content').appendChild(newModel);
   this.model = newModel;
 }
+
       // Add the new model to the scene
       scene.appendChild(newModel);
       
