@@ -160,16 +160,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Toggle chat visibility
-  chatToggle.addEventListener('click', () => {
-    if (chatContainer.style.display === 'none' || chatContainer.style.display === '') {
-      chatContainer.style.display = 'block';
-      debug('Chat container shown', 'success');
-    } else {
-      chatContainer.style.display = 'none';
-      debug('Chat container hidden', 'log');
-    }
-  });
+const chatToggle = document.getElementById('chat-toggle');
+const chatContainer = document.getElementById('chat-container');
+
+chatToggle.addEventListener('click', () => {
+  chatContainer.style.display = (chatContainer.style.display === 'none' || chatContainer.style.display === '') 
+    ? 'block' 
+    : 'none';
+});
+
 
   // Remove any leftover hooty models from previous sessions
   const existingModels = document.querySelectorAll('#hooty');
