@@ -5,37 +5,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const debugPanel = document.getElementById('debug-panel');
   const debugToggle = document.getElementById('debug-toggle');
   
-  // Toggle debug panel visibility and show it by default to help troubleshoot
-  debugToggle.addEventListener('click', function() {
-    debugPanel.style.display = debugPanel.style.display === 'none' ? 'block' : 'none';
-  });
-  debugPanel.style.display = 'block'; // Initially visible for troubleshooting
-  
-  // Debug function
-  function debug(message, type = 'log') {
-    const colors = {
-      log: '#ffffff',
-      warn: '#ffaa00',
-      error: '#ff5555',
-      success: '#55ff55'
-    };
-    const prefix = {
-      log: '📝',
-      warn: '⚠️',
-      error: '❌',
-      success: '✅'
-    };
-
-    console[type](message);
-    if (debugPanel) {
-      const logLine = document.createElement('div');
-      logLine.textContent = `${prefix[type]} ${message}`;
-      logLine.style.color = colors[type];
-      debugPanel.appendChild(logLine);
-      debugPanel.scrollTop = debugPanel.scrollHeight;
-    }
-  }
-
   // Hooty Controller Class
   class HootyController {
     constructor(model, debugFunction) {
@@ -277,7 +246,6 @@ chatToggle.addEventListener('click', () => {
       });
       
       // Initialize with full configuration
-      debug("Calling botpress.init...", 'log');
       window.botpress.init({
         "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
         "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
@@ -307,31 +275,11 @@ chatToggle.addEventListener('click', () => {
           "radius": 1
         }
       });
-      debug("Botpress initialization called successfully", 'success');
       
-      // Check if it loaded properly
-      setTimeout(() => {
-        const botpressElements = document.querySelectorAll('.bpWebchat');
-        if (botpressElements.length === 0) {
-          debug("⚠️ No Botpress elements found after initialization", 'warn');
-          // Try a simpler initialization
-          simpleBotpressInit();
-        } else {
-          debug(`Found ${botpressElements.length} Botpress elements`, 'success');
-        }
-      }, 3000);
-      
-    } catch (e) {
-      debug(`❌ Botpress init error: ${e.message}`, 'error');
-      // Try a simpler initialization after an error
-      setTimeout(simpleBotpressInit, 2000);
-    }
-  }
-  
+
   // Simplified Botpress initialization as a fallback
   function simpleBotpressInit() {
     try {
-      debug("Attempting simplified Botpress initialization...", 'warn');
       window.botpress.init({
         "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
         "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
@@ -342,11 +290,7 @@ chatToggle.addEventListener('click', () => {
           "color": "#ffc53d"
         }
       });
-      debug("Simplified Botpress initialization complete", 'success');
-    } catch (e) {
-      debug(`❌ Simplified Botpress init error: ${e.message}`, 'error');
-    }
-  }
+
 
   // Handle AR placement
   scene.addEventListener('click', function (evt) {
