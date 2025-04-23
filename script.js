@@ -49,7 +49,22 @@ document.addEventListener('DOMContentLoaded', function () {
     playAnimation(animFile, duration = 7000) {
       this.debug(`Playing animation: ${animFile}`, 'log');
       this.currentAnimation = animFile;
-      
+      newModel.addEventListener('model-loaded', () => {
+  this.debug(`✅ Loaded: ${animFile}`, 'success');
+
+  // Now apply animation-mixer again (after load)
+  newModel.setAttribute('animation-mixer', {
+    loop: 'repeat'
+  });
+
+  // Return to idle if non-idle animation
+  if (animFile !== 'HappyIdle.glb') {
+    setTimeout(() => {
+      this.playAnimation('HappyIdle.glb');
+    }, duration);
+  }
+});
+
       // Clear any existing animation timeout
       if (this.animationTimeout) {
         clearTimeout(this.animationTimeout);
