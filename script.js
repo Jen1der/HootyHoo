@@ -82,7 +82,6 @@ document.addEventListener('DOMContentLoaded', function () {
         
         // Set timeout to return to idle after duration
         if (animFile !== 'HappyIdle.glb') {
-          this.debug(`Will return to idle after ${duration/1000} seconds`, 'log');
           this.animationTimeout = setTimeout(() => {
             this.playAnimation('HappyIdle.glb');
             this.debug('Returning to idle animation', 'log');
@@ -133,11 +132,35 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Set up chat toggle behavior
+  // Set up chat toggle behavior with improved visibility
   chatToggle.addEventListener('click', () => {
-    chatContainer.style.display = (chatContainer.style.display === 'none' || chatContainer.style.display === '') 
-      ? 'block' 
-      : 'none';
+    if (chatContainer.style.display === 'none' || chatContainer.style.display === '') {
+      chatContainer.style.display = 'block';
+      // Try to open Botpress chat if it exists
+      if (window.botpress && typeof window.botpress.open === 'function') {
+        try {
+          window.botpress.open();
+          debug("Opening Botpress chat", 'log');
+        } catch (err) {
+          debug(`Error opening Botpress: ${err.message}`, 'error');
+        }
+      } else {
+        debug("Botpress not initialized yet, showing container only", 'warn');
+        // If Botpress isn't ready, try initializing it
+        initBotpress();
+      }
+    } else {
+      chatContainer.style.display = 'none';
+      // Try to close Botpress chat if it exists
+      if (window.botpress && typeof window.botpress.close === 'function') {
+        try {
+          window.botpress.close();
+          debug("Closing Botpress chat", 'log');
+        } catch (err) {
+          debug(`Error closing Botpress: ${err.message}`, 'error');
+        }
+      }
+    }
   });
 
   // Remove any leftover hooty models from previous sessions
@@ -214,95 +237,90 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
   
-  // Initialize Botpress chat with updated configuration and additional error handling
+  // Direct Botpress initialization without waiting - immediate execution
   function initBotpress() {
-    debug("Attempting to initialize Botpress...", 'log');
+    debug("Initializing Botpress chat...", 'log');
     
+    // Only proceed if Botpress script is loaded
     if (!window.botpress) {
-      debug("Botpress not loaded yet, retrying in 2 seconds...", 'warn');
-      setTimeout(initBotpress, 2000);
+      debug("Botpress script not loaded yet, retrying in 1 second...", 'warn');
+      setTimeout(initBotpress, 1000);
       return;
     }
     
-    // Set a flag to prevent duplicate initialization
+    // Prevent duplicate initialization
     if (window.botpressInitialized) {
-      debug("Botpress already initialized, skipping", 'warn');
+      debug("Botpress already initialized", 'warn');
       return;
     }
     
     window.botpressInitialized = true;
     
     try {
-      // Set up event listeners first
+      debug("Setting up Botpress event listeners", 'log');
+      
+      // Set up event listeners
       window.botpress.on("webchat:ready", () => {
-        debug("Botpress chat ready!", 'success');
+        debug("✅ Botpress webchat ready!", 'success');
+        // Make sure our container is visible
+        chatContainer.style.display = 'block';
       });
-
+      
       window.botpress.on("webchat:message:sent", (event) => {
         const msg = event.message?.text || "";
         debug(`User: ${msg}`, 'log');
         window.hootyController?.reactToMessage(msg);
       });
-
+      
       window.botpress.on("webchat:message:received", (event) => {
         const msg = event.message?.text || "";
         debug(`Bot: ${msg}`, 'log');
         window.hootyController?.reactToBotResponse(msg);
       });
       
-      // Initialize with full configuration
+      debug("Initializing Botpress with config", 'log');
+      
+      // Initialize Botpress
       window.botpress.init({
         "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
         "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
+        "hostUrl": "https://cdn.botpress.cloud/webchat/v2.3",
+        "messagingUrl": "https://messaging.botpress.cloud",
+        "botName": "iHooty",
+        "stylesheet": "https://webchat-styler-css.botpress.app/prod/code/7039421c-1d7a-4261-9bea-1d8cc50ce47a/v48211/style.css",
+        "useSessionStorage": true,
+        "showPoweredBy": false,
+        "hideWidget": true,
+        "disableAnimations": false,
+        "className": "webchatIframe",
+        "containerWidth": "100%",
+        "layoutWidth": "100%",
+        "showConversationButtons": false,
+        "enableConversationDeletion": false,
         "selector": "#webchat",
-        "configuration": {
-          "composerPlaceholder": "Let's go, Hoots!",
-          "botName": "iHooty",
-          "botAvatar": "",
-          "website": {
-            "title": "https://ofallonhoots.com/",
-            "link": "https://ofallonhoots.com/"
-          },
-          "email": {
-            "title": "Ofallonhoots@prospectleague.com",
-            "link": "Ofallonhoots@prospectleague.com"
-          },
-          "phone": {
-            "title": "6367414668",
-            "link": "6367414668"
-          },
-          "termsOfService": {},
-          "privacyPolicy": {},
-          "color": "#ffc53d",
-          "variant": "solid",
-          "themeMode": "light",
-          "fontFamily": "ibm",
-          "radius": 1
-        }
+        "frontendVersion": "v2.3",
+        "theme": "prism",
+        "themeColor": "#ffc53d"
       });
+      
+      debug("Botpress initialization complete", 'success');
+      
+      // Make sure the chat is visible after initialization
+      chatContainer.style.display = 'block';
+      
     } catch (err) {
-      debug(`Botpress initialization error: ${err.message}`, 'error');
-      // Try simplified initialization as fallback
-      setTimeout(simpleBotpressInit, 2000);
-    }
-  }
-
-  // Simplified Botpress initialization as a fallback
-  function simpleBotpressInit() {
-    try {
-      debug("Attempting simplified Botpress initialization...", 'warn');
-      window.botpress.init({
-        "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
-        "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
-        "selector": "#webchat",
-        "configuration": {
-          "composerPlaceholder": "Let's go, Hoots!",
-          "botName": "iHooty",
-          "color": "#ffc53d"
-        }
-      });
-    } catch (err) {
-      debug(`Simplified Botpress initialization error: ${err.message}`, 'error');
+      debug(`❌ Botpress initialization error: ${err.message}`, 'error');
+      // Try simple initialization as a fallback
+      try {
+        debug("Attempting fallback initialization", 'warn');
+        window.botpress.init({
+          "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
+          "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
+          "selector": "#webchat"
+        });
+      } catch (fallbackErr) {
+        debug(`❌ Fallback initialization error: ${fallbackErr.message}`, 'error');
+      }
     }
   }
 
@@ -332,14 +350,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Start initialization processes
   setTimeout(checkModelFiles, 1000);
-  setTimeout(initBotpress, 2000);
   
-  // Force show chat on button click (debug)
+  // Initialize Botpress immediately
+  initBotpress();
+  
+  // Force show debug panel initially to help with troubleshooting
+  debugPanel.style.display = 'block';
+  
+  // Force show chat on double-click (debug feature)
   chatToggle.addEventListener('dblclick', function() {
     debug("Force showing chat container", 'warn');
     chatContainer.style.display = 'block';
     chatContainer.style.visibility = 'visible';
     chatContainer.style.opacity = '1';
     chatContainer.style.zIndex = '9999';
+    
+    // Force Botpress initialization
+    if (!window.botpressInitialized) {
+      debug("Force initializing Botpress", 'warn');
+      initBotpress();
+    }
   });
 });
