@@ -49,21 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
     playAnimation(animFile, duration = 7000) {
       this.debug(`Playing animation: ${animFile}`, 'log');
       this.currentAnimation = animFile;
-      newModel.addEventListener('model-loaded', () => {
-  this.debug(`✅ Loaded: ${animFile}`, 'success');
-
-  // Now apply animation-mixer again (after load)
-  newModel.setAttribute('animation-mixer', {
-    loop: 'repeat'
-  });
-
-  // Return to idle if non-idle animation
-  if (animFile !== 'HappyIdle.glb') {
-    setTimeout(() => {
-      this.playAnimation('HappyIdle.glb');
-    }, duration);
-  }
-});
+  
 
       // Clear any existing animation timeout
       if (this.animationTimeout) {
@@ -91,7 +77,26 @@ document.addEventListener('DOMContentLoaded', function () {
       newModel.setAttribute('rotation', rotation);
       newModel.setAttribute('animation-mixer', 'loop: repeat');
       newModel.setAttribute('visible', 'true');
-      
+       newModel.addEventListener('model-loaded', () => {
+    this.debug(`✅ Loaded: ${animFile}`, 'success');
+
+    // Apply animation-mixer after model loads
+    newModel.setAttribute('animation-mixer', {
+      loop: 'repeat'
+    });
+
+    if (animFile !== 'HappyIdle.glb') {
+      this.animationTimeout = setTimeout(() => {
+        this.playAnimation('HappyIdle.glb');
+        this.debug('Returning to idle animation', 'log');
+      }, duration);
+    }
+  });
+
+  // Append to AR scene or entity
+  document.querySelector('#ar-content').appendChild(newModel);
+  this.model = newModel;
+}
       // Add the new model to the scene
       scene.appendChild(newModel);
       
