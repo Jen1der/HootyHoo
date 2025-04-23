@@ -37,6 +37,7 @@ body {
   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
   margin-top: 10px;
   transition: all 0.2s ease;
+  z-index: 1001;
 }
 
 #chat-toggle:hover {
@@ -58,6 +59,7 @@ body {
   overflow: hidden;
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  z-index: 1000;
 }
 
 #webchat {
@@ -67,20 +69,6 @@ body {
   margin: 0;
   border-radius: 10px;
   overflow: hidden;
-}
-
-/* Customize Botpress Webchat Appearance */
-#webchat .bpWebchat {
-  position: unset !important;
-  width: 100% !important;
-  height: 100% !important;
-  max-height: 100% !important;
-  max-width: 100% !important;
-}
-
-/* Hide Floating Chat Button from Botpress */
-#webchat .bpFab {
-  display: none !important;
 }
 
 /* Animation controls panel */
@@ -95,6 +83,13 @@ body {
   text-align: center;
   z-index: 100;
   max-width: 90%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+#animation-controls h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #ffc53d;
 }
 
 .anim-button {
@@ -118,34 +113,61 @@ body {
   transform: scale(0.95);
 }
 
+/* Debug toggle button */
+#debug-toggle {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  z-index: 1001;
+  font-family: 'Bebas Neue', sans-serif;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+#debug-toggle:hover {
+  background-color: #555;
+}
+
 /* Debug panel */
 #debug-panel {
   display: none;
   position: fixed;
-  top: 10px;
-  left: 10px;
+  top: 50px;
+  right: 10px;
   background: rgba(0, 0, 0, 0.8);
   color: #00ff00;
   font-family: monospace;
   font-size: 12px;
   padding: 10px;
   border-radius: 5px;
-  max-height: 200px;
+  width: 300px;
+  max-height: 400px;
   overflow-y: auto;
   z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  text-align: left;
 }
 
-#debug-toggle {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  z-index: 1001;
-  background: #333;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 5px;
-  cursor: pointer;
+#debug-panel div {
+  border-bottom: 1px solid #333;
+  padding: 3px 0;
+}
+
+#debug-panel div.error {
+  color: #ff3333;
+}
+
+#debug-panel div.warn {
+  color: #ffcc00;
+}
+
+#debug-panel div.success {
+  color: #33ff33;
 }
 
 /* Fix for AR.js scene overlay issues */
@@ -153,6 +175,20 @@ body {
   position: fixed !important;
   bottom: 20px !important;
   left: 20px !important;
+}
+
+/* Customize Botpress Webchat Appearance */
+.webchatIframe {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  max-width: 100% !important;
+  border: none !important;
+}
+
+/* Hide Floating Chat Button from Botpress */
+.bp-widget-web .bp-widget-web__launcher {
+  display: none !important;
 }
 
 /* Make sure chat displays properly on mobile */
@@ -180,5 +216,11 @@ body {
     padding: 5px 8px;
     margin: 2px;
     font-size: 12px;
+  }
+  
+  #debug-panel {
+    width: 250px;
+    max-height: 200px;
+    font-size: 10px;
   }
 }
