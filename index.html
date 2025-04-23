@@ -36,7 +36,17 @@
 </head>
 
 <body>
+  <div id="chat-wrapper">
+
+  <button id="chat-toggle">💬</button>
+
+  <!-- Chat container -->
+  <div id="chat-container">
+    <div id="webchat" style="width: 100%; height: 100%;"></div>
+  </div>
+    
   <script>
+
   window.botpress.on("webchat:ready", () => {
     window.botpress.open();
   });
@@ -70,13 +80,8 @@
   "selector": "#webchat"
 });
 </script>  
-  <!-- Chat toggle button -->
-  <button id="chat-toggle">Chat</button>
-  
-  <!-- Chat container - Making sure it's visible with inline style -->
-  <div id="chat-container">
-    <div id="webchat" style="width: 100%; height: 100%;"></div>
-  </div>
+
+
   
   <!-- Animation controls buttons -->
   <div id="animation-controls">
