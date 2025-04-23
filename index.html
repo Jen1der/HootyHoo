@@ -16,6 +16,23 @@
   
   <!-- Link to external stylesheet -->
   <link rel="stylesheet" href="styles.css">
+  
+  <!-- Explicit Botpress styling to ensure it works -->
+  <style>
+    #webchat .bpWebchat {
+      position: unset !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-height: 100% !important;
+      max-width: 100% !important;
+    }
+    #webchat .bpFab {
+      display: none !important;
+    }
+    #chat-container {
+      display: none; /* Initially hidden, toggled by button */
+    }
+  </style>
 </head>
 
 <body>
@@ -27,8 +44,8 @@
   <!-- Chat toggle button -->
   <button id="chat-toggle">Chat</button>
   
-  <!-- Chat container -->
-  <div id="chat-container">
+  <!-- Chat container - Making sure it's visible with inline style -->
+  <div id="chat-container" style="z-index: 1000;">
     <div id="webchat" style="width: 100%; height: 100%;"></div>
   </div>
   
@@ -65,5 +82,32 @@
   
   <!-- Include your JavaScript -->
   <script src="script.js"></script>
+  
+  <!-- Fallback initialization for Botpress -->
+  <script>
+    // Backup initialization to ensure Botpress loads
+    setTimeout(function() {
+      if (window.botpress && !window.botpressInitialized) {
+        console.log("Running fallback Botpress initialization");
+        window.botpress.init({
+          "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
+          "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
+          "selector": "#webchat",
+          "configuration": {
+            "composerPlaceholder": "Let's go, Hoots!",
+            "botName": "iHooty",
+            "color": "#ffc53d",
+            "variant": "solid",
+            "themeMode": "light"
+          }
+        });
+        
+        window.botpress.on("webchat:ready", function() {
+          console.log("Botpress chat ready (fallback)");
+          document.getElementById("debug-panel").innerHTML += "<div>Botpress chat ready (fallback)</div>";
+        });
+      }
+    }, 3000);
+  </script>
 </body>
 </html>
