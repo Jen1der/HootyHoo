@@ -25,12 +25,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
   
-  // Toggle debug panel
+  // Toggle debug panel - make sure it's properly hidden/shown
   if (debugToggle) {
     debugToggle.addEventListener('click', function() {
-      debugPanel.style.display = debugPanel.style.display === 'none' ? 'block' : 'none';
+      if (debugPanel.style.display === 'none' || debugPanel.style.display === '') {
+        debugPanel.style.display = 'block';
+        debugToggle.textContent = 'Hide Debug';
+      } else {
+        debugPanel.style.display = 'none';
+        debugToggle.textContent = 'Show Debug';
+      }
     });
   }
+  
+  // Initially hide debug panel
+  debugPanel.style.display = 'none';
+  debugToggle.textContent = 'Show Debug';
   
   // Hooty Controller Class
   class HootyController {
@@ -134,6 +144,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Set up chat toggle behavior with improved visibility
   chatToggle.addEventListener('click', () => {
+    debug("Chat toggle clicked", 'log');
     if (chatContainer.style.display === 'none' || chatContainer.style.display === '') {
       chatContainer.style.display = 'block';
       // Try to open Botpress chat if it exists
@@ -237,13 +248,35 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
   
-  // Direct Botpress initialization without waiting - immediate execution
+  // Modified Botpress initialization with better error handling
   function initBotpress() {
     debug("Initializing Botpress chat...", 'log');
     
+    // Make sure the container is positioned correctly
+    chatContainer.style.position = 'relative';
+    
     // Only proceed if Botpress script is loaded
     if (!window.botpress) {
-      debug("Botpress script not loaded yet, retrying in 1 second...", 'warn');
+      debug("Botpress script not loaded yet, checking status...", 'warn');
+      
+      // Check if the script element exists
+      const botpressScript = document.querySelector('script[src*="botpress"]');
+      if (!botpressScript) {
+        debug("Botpress script tag not found, adding it now", 'warn');
+        const script = document.createElement('script');
+        script.src = "https://cdn.botpress.cloud/webchat/v2.3/inject.js";
+        script.onload = () => {
+          debug("Botpress script loaded successfully", 'success');
+          setTimeout(initBotpress, 500);
+        };
+        script.onerror = (err) => {
+          debug(`Failed to load Botpress script: ${err}`, 'error');
+        };
+        document.head.appendChild(script);
+        return;
+      }
+      
+      debug("Botpress script tag found but not loaded yet, retrying in 1 second...", 'warn');
       setTimeout(initBotpress, 1000);
       return;
     }
@@ -280,47 +313,46 @@ document.addEventListener('DOMContentLoaded', function () {
       
       debug("Initializing Botpress with config", 'log');
       
-      // Initialize Botpress
-      window.botpress.init({
-        "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
-        "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
-        "hostUrl": "https://cdn.botpress.cloud/webchat/v2.3",
-        "messagingUrl": "https://messaging.botpress.cloud",
-        "botName": "iHooty",
-        "stylesheet": "https://webchat-styler-css.botpress.app/prod/code/7039421c-1d7a-4261-9bea-1d8cc50ce47a/v48211/style.css",
-        "useSessionStorage": true,
-        "showPoweredBy": false,
-        "hideWidget": true,
-        "disableAnimations": false,
-        "className": "webchatIframe",
-        "containerWidth": "100%",
-        "layoutWidth": "100%",
-        "showConversationButtons": false,
-        "enableConversationDeletion": false,
-        "selector": "#webchat",
-        "frontendVersion": "v2.3",
-        "theme": "prism",
-        "themeColor": "#ffc53d"
-      });
-      
-      debug("Botpress initialization complete", 'success');
-      
-      // Make sure the chat is visible after initialization
-      chatContainer.style.display = 'block';
-      
-    } catch (err) {
-      debug(`❌ Botpress initialization error: ${err.message}`, 'error');
-      // Try simple initialization as a fallback
+      // Initialize Botpress with simpler config first
       try {
-        debug("Attempting fallback initialization", 'warn');
         window.botpress.init({
           "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
           "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
-          "selector": "#webchat"
+          "hostUrl": "https://cdn.botpress.cloud/webchat/v2.3",
+          "messagingUrl": "https://messaging.botpress.cloud",
+          "botName": "iHooty",
+          "useSessionStorage": true,
+          "showPoweredBy": false,
+          "hideWidget": true,
+          "selector": "#webchat",
+          "frontendVersion": "v2.3"
         });
-      } catch (fallbackErr) {
-        debug(`❌ Fallback initialization error: ${fallbackErr.message}`, 'error');
+        
+        debug("Botpress initialized with basic config", 'success');
+      } catch (err) {
+        debug(`Botpress basic initialization failed: ${err.message}`, 'error');
+        
+        // Try a very minimal initialization as last resort
+        try {
+          window.botpress.init({
+            "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
+            "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
+            "selector": "#webchat"
+          });
+          debug("Botpress minimal initialization succeeded", 'success');
+        } catch (minErr) {
+          debug(`Minimal Botpress initialization failed: ${minErr.message}`, 'error');
+        }
       }
+      
+      // Force show the chat container
+      setTimeout(() => {
+        chatContainer.style.display = 'block';
+        debug("Forced chat container visibility", 'log');
+      }, 1000);
+      
+    } catch (err) {
+      debug(`❌ Botpress initialization error: ${err.message}`, 'error');
     }
   }
 
@@ -351,11 +383,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // Start initialization processes
   setTimeout(checkModelFiles, 1000);
   
-  // Initialize Botpress immediately
-  initBotpress();
-  
-  // Force show debug panel initially to help with troubleshooting
-  debugPanel.style.display = 'block';
+  // Initialize Botpress after a short delay to ensure DOM is ready
+  setTimeout(initBotpress, 500);
   
   // Force show chat on double-click (debug feature)
   chatToggle.addEventListener('dblclick', function() {
