@@ -95,7 +95,7 @@
       color: #fcc419;
     }
     
-    /* Chat styles */
+    /* Chat styles - UPDATED */
     #chat-wrapper {
       position: fixed;
       bottom: 20px;
@@ -137,19 +137,15 @@
     }
     
     /* Fix Botpress webchat styling */
-    #webchat .bp-widget-web {
+    #webchat .bpWebchat {
+      position: unset !important;
       width: 100% !important;
       height: 100% !important;
       max-height: 100% !important;
+      max-width: 100% !important;
     }
     
-    #webchat .bp-widget-web .bp-widget {
-      position: relative !important;
-      width: 100% !important;
-      height: 100% !important;
-    }
-    
-    #webchat .bp-widget-web .bp-widget-btn {
+    #webchat .bpFab {
       display: none !important;
     }
   </style>
