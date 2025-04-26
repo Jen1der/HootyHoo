@@ -128,7 +128,7 @@
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-      z-index: 9999;
+      display: none;
     }
     
     #webchat {
@@ -137,15 +137,19 @@
     }
     
     /* Fix Botpress webchat styling */
-    #webchat .bpWebchat {
-      position: unset !important;
+    #webchat .bp-widget-web {
       width: 100% !important;
       height: 100% !important;
       max-height: 100% !important;
-      max-width: 100% !important;
     }
     
-    #webchat .bpFab {
+    #webchat .bp-widget-web .bp-widget {
+      position: relative !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    #webchat .bp-widget-web .bp-widget-btn {
       display: none !important;
     }
   </style>
@@ -178,7 +182,7 @@
     <button id="chat-toggle">💬</button>
     
     <!-- Chat container -->
-    <div id="chat-container" style="display: none;">
+    <div id="chat-container">
       <div id="webchat"></div>
     </div>
   </div>
@@ -198,28 +202,6 @@
     <a-entity camera look-controls position="0 1.6 0"></a-entity>
   </a-scene>
 
-  <!-- Botpress initialization script -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initialize Botpress with correct configuration
-      window.botpress.init({
-        "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
-        "configuration": {
-          "composerPlaceholder": "Let's go, Hoots!",
-          "botName": "iHooty",
-          "color": "#ffc53d",
-          "variant": "solid",
-          "themeMode": "light",
-          "fontFamily": "ibm",
-          "radius": 1
-        },
-        "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
-        "selector": "#webchat",
-        "hideWidget": true
-      });
-    });
-  </script>
-  
   <!-- Include your JavaScript -->
   <script src="script.js"></script>
 </body>
