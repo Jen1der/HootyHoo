@@ -32,12 +32,48 @@ document.addEventListener('DOMContentLoaded', function () {
     
     debug("Initializing Botpress", 'log');
     
+    // Update styling to ensure proper display
+    const webchatDiv = document.getElementById('webchat');
+    webchatDiv.style.width = '100%';
+    webchatDiv.style.height = '100%';
+    
+    // Add necessary styles directly to head
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      #webchat .bpWebchat {
+        position: unset !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        max-width: 100% !important;
+      }
+      #webchat .bpFab {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(styleElement);
+    
     // Initialize Botpress with the correct configuration
     window.botpress.init({
       "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
       "configuration": {
         "composerPlaceholder": "Let's go, Hoots!",
         "botName": "iHooty",
+        "botAvatar": "",
+        "website": {
+          "title": "https://ofallonhoots.com/",
+          "link": "https://ofallonhoots.com/"
+        },
+        "email": {
+          "title": "Ofallonhoots@prospectleague.com",
+          "link": "Ofallonhoots@prospectleague.com"
+        },
+        "phone": {
+          "title": "6367414668",
+          "link": "6367414668"
+        },
+        "termsOfService": {},
+        "privacyPolicy": {},
         "color": "#ffc53d",
         "variant": "solid",
         "themeMode": "light",
@@ -45,14 +81,21 @@ document.addEventListener('DOMContentLoaded', function () {
         "radius": 1
       },
       "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
-      "selector": "#webchat",
-      "hideWidget": true
+      "selector": "#webchat"
     });
     
     // Set up event listeners
     window.botpress.on("webchat:ready", () => {
       debug("Botpress webchat is ready", 'success');
       botpressInitialized = true;
+      
+      // Open the chat when it's ready if the container is visible
+      if (chatContainer.style.display === 'block') {
+        setTimeout(() => {
+          window.botpress.open();
+          debug('Automatically opening Botpress on ready', 'success');
+        }, 300);
+      }
     });
     
     window.botpress.on("webchat:message:sent", (event) => {
@@ -198,6 +241,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (chatContainer.style.display === 'none' || chatContainer.style.display === '') {
       chatContainer.style.display = 'block';
       debug('Chat container shown', 'success');
+      
+      // Force chat container to be visible with appropriate z-index
+      chatContainer.style.zIndex = '10000';
       
       // Try to open Botpress chat
       if (window.botpress && typeof window.botpress.open === 'function') {
