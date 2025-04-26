@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const chatContainer = document.querySelector('#chat-container');
   const debugPanel = document.getElementById('debug-panel');
   const debugToggle = document.getElementById('debug-toggle');
+  let botpressInitialized = false;
   
   // Debug utility function
   function debug(message, type = 'log') {
@@ -23,6 +24,48 @@ document.addEventListener('DOMContentLoaded', function () {
         debugPanel.removeChild(debugPanel.firstChild);
       }
     }
+  }
+  
+  // Initialize Botpress
+  function initBotpress() {
+    if (botpressInitialized) return;
+    
+    debug("Initializing Botpress", 'log');
+    
+    // Initialize Botpress with the correct configuration
+    window.botpress.init({
+      "botId": "0d3d94b4-0bdb-4bcc-9e35-e21194ed2c1e",
+      "configuration": {
+        "composerPlaceholder": "Let's go, Hoots!",
+        "botName": "iHooty",
+        "color": "#ffc53d",
+        "variant": "solid",
+        "themeMode": "light",
+        "fontFamily": "ibm",
+        "radius": 1
+      },
+      "clientId": "44c58e23-012d-4aa6-9617-abb818a66b42",
+      "selector": "#webchat",
+      "hideWidget": true
+    });
+    
+    // Set up event listeners
+    window.botpress.on("webchat:ready", () => {
+      debug("Botpress webchat is ready", 'success');
+      botpressInitialized = true;
+    });
+    
+    window.botpress.on("webchat:message:sent", (event) => {
+      const msg = event.message?.text || "";
+      debug(`User: ${msg}`, 'log');
+      window.hootyController?.reactToMessage(msg);
+    });
+    
+    window.botpress.on("webchat:message:received", (event) => {
+      const msg = event.message?.text || "";
+      debug(`Bot: ${msg}`, 'log');
+      window.hootyController?.reactToBotResponse(msg);
+    });
   }
   
   // Toggle debug panel
@@ -142,29 +185,42 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Improved chat toggle behavior
-  chatToggle.addEventListener('click', () => {
-    debug("Chat toggle clicked", 'log');
+  // Enhanced Chat Toggle - Fixed for reliable opening/closing
+  chatToggle.addEventListener('click', function() {
+    debug('Chat toggle clicked', 'log');
+    
+    // First initialize Botpress if not already done
+    if (!botpressInitialized && window.botpress) {
+      initBotpress();
+    }
+    
+    // Toggle chat container visibility
     if (chatContainer.style.display === 'none' || chatContainer.style.display === '') {
       chatContainer.style.display = 'block';
+      debug('Chat container shown', 'success');
       
       // Try to open Botpress chat
       if (window.botpress && typeof window.botpress.open === 'function') {
         try {
-          window.botpress.open();
-          debug("Opening Botpress chat", 'success');
+          setTimeout(() => {
+            window.botpress.open();
+            debug('Botpress open called', 'success');
+          }, 300);
         } catch (err) {
           debug(`Error opening Botpress: ${err.message}`, 'error');
         }
+      } else {
+        debug('Botpress not available for opening', 'warn');
       }
     } else {
       chatContainer.style.display = 'none';
+      debug('Chat container hidden', 'log');
       
       // Try to close Botpress chat
       if (window.botpress && typeof window.botpress.close === 'function') {
         try {
           window.botpress.close();
-          debug("Closing Botpress chat", 'log');
+          debug('Botpress close called', 'log');
         } catch (err) {
           debug(`Error closing Botpress: ${err.message}`, 'error');
         }
@@ -172,16 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Remove any leftover hooty models from previous sessions
-  const existingModels = document.querySelectorAll('#hooty');
-  existingModels.forEach(model => {
-    debug(`Removing leftover hooty model`, 'log');
-    model.parentNode.removeChild(model);
-  });
-
   // Create a fresh Hooty model
-  createHootyModel();
-
   function createHootyModel() {
     const hootModel = document.createElement('a-entity');
     hootModel.setAttribute('id', 'hooty');
@@ -246,32 +293,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
   
-  // Setup Botpress event listeners
-  function setupBotpressEvents() {
-    if (window.botpress) {
-      debug("Setting up Botpress event listeners", 'log');
-      
-      window.botpress.on("webchat:ready", () => {
-        debug("✅ Botpress webchat ready!", 'success');
-      });
-      
-      window.botpress.on("webchat:message:sent", (event) => {
-        const msg = event.message?.text || "";
-        debug(`User: ${msg}`, 'log');
-        window.hootyController?.reactToMessage(msg);
-      });
-      
-      window.botpress.on("webchat:message:received", (event) => {
-        const msg = event.message?.text || "";
-        debug(`Bot: ${msg}`, 'log');
-        window.hootyController?.reactToBotResponse(msg);
-      });
-    } else {
-      debug("Botpress not available yet for event setup", 'warn');
-      setTimeout(setupBotpressEvents, 1000);
-    }
-  }
-
   // Handle AR placement
   scene.addEventListener('click', function (evt) {
     if (scene.is('ar-mode')) {
@@ -295,8 +316,62 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   });
-
+  
+  // Remove any leftover hooty models
+  const existingModels = document.querySelectorAll('#hooty');
+  existingModels.forEach(model => {
+    debug(`Removing leftover hooty model`, 'log');
+    model.parentNode.removeChild(model);
+  });
+  
+  // Initialize Botpress when script loads
+  if (window.botpress) {
+    initBotpress();
+  } else {
+    debug('Botpress not available yet, will try again later', 'warn');
+    
+    // Check periodically for Botpress availability
+    const botpressCheckInterval = setInterval(() => {
+      if (window.botpress) {
+        debug('Botpress now available', 'success');
+        initBotpress();
+        clearInterval(botpressCheckInterval);
+      }
+    }, 1000);
+    
+    // Give up after 10 seconds
+    setTimeout(() => {
+      clearInterval(botpressCheckInterval);
+      if (!botpressInitialized) {
+        debug('Gave up waiting for Botpress after 10 seconds', 'error');
+      }
+    }, 10000);
+  }
+  
   // Start initialization processes
-  setTimeout(checkModelFiles, 1000);
-  setTimeout(setupBotpressEvents, 1000);
+  createHootyModel();
+  checkModelFiles();
+  
+  // Ensure chat toggle has high z-index
+  chatToggle.style.zIndex = '10000';
+  
+  // Debug - double click to force chat
+  chatToggle.addEventListener('dblclick', function() {
+    debug('Double-clicked chat toggle - forcing display', 'warn');
+    chatContainer.style.display = 'block';
+    chatContainer.style.zIndex = '10000';
+    
+    // Try to force initialize Botpress
+    if (window.botpress && !botpressInitialized) {
+      initBotpress();
+    }
+    
+    // Force open Botpress after a short delay
+    setTimeout(() => {
+      if (window.botpress && typeof window.botpress.open === 'function') {
+        window.botpress.open();
+        debug('Forced Botpress to open', 'success');
+      }
+    }, 500);
+  });
 });
