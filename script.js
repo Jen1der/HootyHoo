@@ -6,25 +6,45 @@ document.addEventListener('DOMContentLoaded', function () {
   const debugToggle = document.getElementById('debug-toggle');
   let botpressInitialized = false;
   
-  // Debug utility function
+  //  Safe debug function to prevent console[type] error
   function debug(message, type = 'log') {
-    console[type](message);
-    
+    if (typeof console[type] === 'function') {
+      console[type](message);
+    } else {
+      console.log(message);
+    }
+
     if (debugPanel) {
       const msgElement = document.createElement('div');
       msgElement.textContent = message;
       msgElement.classList.add(type);
       debugPanel.appendChild(msgElement);
-      
-      // Auto-scroll to bottom
+
       debugPanel.scrollTop = debugPanel.scrollHeight;
-      
-      // Limit debug entries
+
       while (debugPanel.children.length > 50) {
         debugPanel.removeChild(debugPanel.firstChild);
       }
     }
   }
+
+  if (debugToggle) {
+    debugToggle.addEventListener('click', function() {
+      if (debugPanel.style.display === 'none' || debugPanel.style.display === '') {
+        debugPanel.style.display = 'block';
+        debugToggle.textContent = 'Hide Debug';
+      } else {
+        debugPanel.style.display = 'none';
+        debugToggle.textContent = 'Show Debug';
+      }
+    });
+  }
+
+  debugPanel.style.display = 'none';
+  debugToggle.textContent = 'Show Debug';
+
+});
+
   
   // Initialize Botpress
   function initBotpress() {
