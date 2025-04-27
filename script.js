@@ -43,8 +43,6 @@ document.addEventListener('DOMContentLoaded', function () {
   debugPanel.style.display = 'none';
   debugToggle.textContent = 'Show Debug';
 
-});
-
   
   // Initialize Botpress
   function initBotpress() {
