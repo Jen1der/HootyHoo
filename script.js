@@ -181,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
       newModel.setAttribute('scale', scale);
       newModel.setAttribute('rotation', rotation);
       newModel.setAttribute('visible', 'true');
+      newModel.setAttribute('animation-mixer', 'loop: repeat');
 
       // Add the new model to the scene
       const arContent = document.querySelector('#ar-content') || scene;
