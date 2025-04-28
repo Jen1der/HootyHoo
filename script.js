@@ -156,59 +156,34 @@ document.addEventListener('DOMContentLoaded', function () {
       this.debug('HootyController initialized', 'success');
     }
     
-    playAnimation(animFile, duration = 7000) {
-      this.debug(`Playing animation: ${animFile}`, 'log');
-      this.currentAnimation = animFile;
+playAnimation(animFile, duration = 7000) {
+  this.debug(`Playing animation: ${animFile}`, 'log');
+  this.currentAnimation = animFile;
 
-      if (this.animationTimeout) {
-        clearTimeout(this.animationTimeout);
-      }
+  if (this.animationTimeout) {
+    clearTimeout(this.animationTimeout);
+  }
 
-      const position = this.model.getAttribute('position');
-      const scale = this.model.getAttribute('scale');
-      const rotation = this.model.getAttribute('rotation');
-
-      const existingModels = document.querySelectorAll('#hooty');
-      existingModels.forEach(model => {
-        this.debug(`Removing existing hooty model`, 'log');
-        model.parentNode.removeChild(model);
-      });
-
-      const newModel = document.createElement('a-entity');
-      newModel.setAttribute('id', 'hooty');
-      newModel.setAttribute('gltf-model', `models/${animFile}`);
-      newModel.setAttribute('position', position);
-      newModel.setAttribute('scale', scale);
-      newModel.setAttribute('rotation', rotation);
-      newModel.setAttribute('visible', 'true');
-      newModel.setAttribute('animation-mixer', 'loop: repeat');
-
-      // Add the new model to the scene
-      const arContent = document.querySelector('#ar-content') || scene;
-      arContent.appendChild(newModel);
-      
-      // Update the model reference
-      this.model = newModel;
-      
-      // Listen for events on the new model
-      newModel.addEventListener('model-loaded', () => {
-        this.debug(`✅ Loaded: ${animFile}`, 'success');
-        newModel.setAttribute('animation-mixer', { loop: 'repeat' });
-        
-        // Set timeout to return to idle after duration
-        if (animFile !== 'HappyIdle.glb') {
-          this.animationTimeout = setTimeout(() => {
-            this.playAnimation('HappyIdle.glb');
-            this.debug('Returning to idle animation', 'log');
-          }, duration);
-        }
-      });
-      
-      newModel.addEventListener('model-error', (err) => {
-        this.debug(`Animation model error: ${err.detail || 'unknown error'}`, 'error');
-      });
-    }
+  const hootyModel = document.querySelector('#hooty');
+  if (hootyModel) {
+    hootyModel.setAttribute('gltf-model', `models/${animFile}`);
     
+    hootyModel.addEventListener('model-loaded', () => {
+      this.debug(`✅ Hooty animation loaded: ${animFile}`, 'success');
+      hootyModel.setAttribute('animation-mixer', { loop: 'repeat' });
+      
+      if (animFile !== 'HappyIdle.glb') {
+        this.animationTimeout = setTimeout(() => {
+          this.playAnimation('HappyIdle.glb');
+          this.debug('Returning to idle animation', 'log');
+        }, duration);
+      }
+    }, { once: true }); // <- important: only run ONCE when it loads!
+  } else {
+    this.debug('❌ Hooty model not found in scene', 'error');
+  }
+}
+
     reactToMessage(message) {
       this.debug(`Reacting to message: ${message}`, 'log');
       const lowerMsg = message.toLowerCase();
